@@ -14,6 +14,8 @@ public class GameManager : MonoBehaviour
     public Transform[] WaitPoint;
     [Header("起飞区根节点")]
     public Transform[] StartPoint;
+    [Header("Player UI info 信息显示根节点")]
+    public Transform[] PlayerUIInfoRoot;
 
     [Header("环形路径根节点")]
     public Transform PathRoot;
@@ -24,6 +26,8 @@ public class GameManager : MonoBehaviour
 
     [Header("Player Prefab")]
     public GameObject PlayerPrefab;
+    public GameObject PlayerUIInfo_L_Prefab;
+    public GameObject PlayerUIInfo_R_Prefab;
 
     [Space(10)]
 
@@ -35,28 +39,41 @@ public class GameManager : MonoBehaviour
 
     //所有Player【key => 阵营 =>  value<userUID,Player>】
     private Dictionary<int, Dictionary<long, Player>> playerDic;
+    private Dictionary<int, Dictionary<long, PlayerUIInfo>> playerUiInfoDic;
 
     public void Init()
     {
         Instance = this;
 
-        if (UIRoot == null) UIRoot = GameObject.Find("Canvas").transform;
-        if (LoginPanel == null) LoginPanel = GameObject.Find("LoginPanel").transform;
-        if (PlayPanel == null) PlayPanel = GameObject.Find("PlayPanel").transform;
+        //int Component
+        {
+            if (UIRoot == null) UIRoot = GameObject.Find("Canvas").transform;
+            if (LoginPanel == null) LoginPanel = GameObject.Find("LoginPanel").transform;
+            if (PlayPanel == null) PlayPanel = GameObject.Find("PlayPanel").transform;
 
-        //UIRoot.gameObject.SetActive(true);
-        //PlayPanel.gameObject.SetActive(false);
-        //LoginPanel.gameObject.SetActive(true);
+            //UIRoot.gameObject.SetActive(true);
+            //PlayPanel.gameObject.SetActive(false);
+            //LoginPanel.gameObject.SetActive(true);
 
-        BilibiliLoginManager loginMgr = LoginPanel.Find("loginUI").GetComponent<BilibiliLoginManager>();
-        loginMgr?.LinkFailedEvent.AddListener(OnLinkFailedEvt);
-        loginMgr?.LinkSuccessEvent.AddListener(OnLinkSuccessEvt);
+            BilibiliLoginManager loginMgr = LoginPanel.Find("loginUI").GetComponent<BilibiliLoginManager>();
+            loginMgr?.LinkFailedEvent.AddListener(OnLinkFailedEvt);
+            loginMgr?.LinkSuccessEvent.AddListener(OnLinkSuccessEvt);
+        }
 
-        playerDic = new Dictionary<int, Dictionary<long, Player>>();
-        playerDic.Add((int)CampEnum.Yellow, new Dictionary<long, Player>());
-        playerDic.Add((int)CampEnum.Blue, new Dictionary<long, Player>());
-        playerDic.Add((int)CampEnum.Green, new Dictionary<long, Player>());
-        playerDic.Add((int)CampEnum.Red, new Dictionary<long, Player>());
+        //init Dictionary
+        {
+            playerDic = new Dictionary<int, Dictionary<long, Player>>();
+            playerDic.Add((int)CampEnum.Yellow, new Dictionary<long, Player>());
+            playerDic.Add((int)CampEnum.Blue, new Dictionary<long, Player>());
+            playerDic.Add((int)CampEnum.Green, new Dictionary<long, Player>());
+            playerDic.Add((int)CampEnum.Red, new Dictionary<long, Player>());
+
+            playerUiInfoDic = new Dictionary<int, Dictionary<long, PlayerUIInfo>>();
+            playerUiInfoDic.Add((int)CampEnum.Yellow, new Dictionary<long, PlayerUIInfo>());
+            playerUiInfoDic.Add((int)CampEnum.Blue, new Dictionary<long, PlayerUIInfo>());
+            playerUiInfoDic.Add((int)CampEnum.Green, new Dictionary<long, PlayerUIInfo>());
+            playerUiInfoDic.Add((int)CampEnum.Red, new Dictionary<long, PlayerUIInfo>());
+        }
     }
 
 
@@ -75,7 +92,7 @@ public class GameManager : MonoBehaviour
             PathList.Add(new Node
             {
                 isFly = isFly,
-                pos = chilTrans.position,
+                pos = chilTrans.localPosition,
                 camp = tmpCamp
             });
 
@@ -105,6 +122,7 @@ public class GameManager : MonoBehaviour
         ConnectViaCode.Instance?.LinkEnd();
     }
 
+    //实例化Player prefab
     void LoadPlayer(CampEnum camp, long userUID, string userName, string userFace)
     {
         if (playerDic[(int)camp].Count >= Config.MaxPlayer)
@@ -113,27 +131,62 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        Dictionary<long, Player> tmpDic = playerDic[(int)camp];
-        if (!tmpDic.ContainsKey(userUID))
+        Dictionary<long, Player> tmpPDic = playerDic[(int)camp];
+        Dictionary<long, PlayerUIInfo> tmpPUIDic = playerUiInfoDic[(int)camp];
+        if (!tmpPDic.ContainsKey(userUID))
         {
             GameObject obj = Instantiate<GameObject>(PlayerPrefab);
             obj.transform.SetParent(PlayerRoot);
             Player player = obj.GetComponent<Player>();
 
-            if (player.Init(userUID, userName, userFace, camp))
+            player.Init(userUID, userName, userFace, camp);
+            PlayerUIInfo playerUIInfo = LoadPlayerUIIngo(camp, userName, userUID, userFace, out GameObject objUI);
+            if (playerUIInfo != null)
             {
-                tmpDic.Add(userUID, player);
+                tmpPDic.Add(userUID, player);
+                tmpPUIDic.Add(userUID, playerUIInfo);
+
             }
             else
             {
                 Destroy(obj);
-                Debug.LogWarning($"玩家[{userName}] 加入阵营失败，错误的命令");
+                Destroy(objUI);
+                Debug.LogWarning($"玩家[{userName}] 加入阵营失败，请稍后重试");
             }
 
         }
         else
         {
             Debug.LogWarning($"玩家[{userName}]，已存在");
+        }
+    }
+
+    //实例化Player UI Info Prefab
+    PlayerUIInfo LoadPlayerUIIngo(CampEnum camp, string username, long userUID, string userface, out GameObject obj)
+    {
+        PlayerUIInfo playerUIInfo = null;
+        Transform parent = null;
+        switch (camp)
+        {
+            case CampEnum.Yellow:
+            case CampEnum.Red:
+                obj = GameObject.Instantiate<GameObject>(PlayerUIInfo_L_Prefab);
+                playerUIInfo = obj.GetComponent<PlayerUIInfo>();
+                parent = PlayerUIInfoRoot[(int)camp];
+                if (parent != null) obj.transform.SetParent(parent);
+                playerUIInfo?.Init(camp, username, userUID, userface);
+                return playerUIInfo;
+            case CampEnum.Blue:
+            case CampEnum.Green:
+                obj = GameObject.Instantiate<GameObject>(PlayerUIInfo_R_Prefab);
+                playerUIInfo = obj.GetComponent<PlayerUIInfo>();
+                parent = PlayerUIInfoRoot[(int)camp];
+                if (parent != null) obj.transform.SetParent(parent);
+                playerUIInfo?.Init(camp, username, userUID, userface);
+                return playerUIInfo;
+            default:
+                obj = null;
+                return null;
         }
     }
     #endregion
@@ -156,6 +209,10 @@ public class GameManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.S))
         {
             Debug.Log("Key Down [S]");
+            EventSys.Instance.CallEvt(EventSys.Left_Up_ThrowDice, null);
+            EventSys.Instance.CallEvt(EventSys.Right_Up_ThrowDice, null);
+            EventSys.Instance.CallEvt(EventSys.Right_Bottom_ThrowDice, null);
+            EventSys.Instance.CallEvt(EventSys.Left_Bottom_ThrowDice, null);
         }
 
         #region  For Test 弹幕命令
