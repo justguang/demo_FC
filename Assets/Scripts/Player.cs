@@ -165,7 +165,7 @@ public class Player : MonoBehaviour
         PathIndex++;
         if (IsEndPath)
         {
-            if (PathIndex == (GameManager.Instance.EndPath[(int)m_Camp].childCount - 1))
+            if (PathIndex >= GameManager.Instance.EndPath[(int)m_Camp].childCount)
             {
                 //winner TODO...
             }
@@ -177,7 +177,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            if (PathIndex >= GameManager.Instance.PathList.Count) PathIndex = 0;
+            if (PathIndex == GameManager.Instance.PathList.Count) PathIndex = 0;
 
             Node node = GameManager.Instance.PathList[PathIndex];
             transform.localPosition = node.pos;
