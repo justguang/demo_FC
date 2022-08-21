@@ -14,10 +14,10 @@ public class Player : MonoBehaviour
     public long UserUID { get; private set; }//玩家UID
     public string UserName { get; private set; }//玩家名
     public string UserFace { get; private set; }//玩家头像
-    public int PathIndex;// { get; private set; }//玩家当前走到第几步【环形路径数据下标】
-    public bool IsEndPath;// { get; private set; }//是否进入终段路径【默认false否】
-    public int OverMoveCount;// { get; private set; }//玩家走了多少步
-    public int MaxMoveCount;// { get; private set; }//玩家需要走多少步才能进入终段
+    public int PathIndex { get; private set; }//玩家当前走到第几步【环形路径数据下标】
+    public bool IsEndPath { get; private set; }//是否进入终段路径【默认false否】
+    public int OverMoveCount { get; private set; }//玩家走了多少步
+    public int MaxMoveCount { get; private set; }//玩家需要走多少步才能进入终段
     public bool IsFly { get; private set; }//true已起飞，false等待区等待起飞
 
     /// <summary>
@@ -42,14 +42,18 @@ public class Player : MonoBehaviour
         }
 
         ReturnWaitPoint();
+
+        //init Event
         EventSys.Instance.AddEvt(EventSys.ThrowDice_OK, MoveByDice);
+        EventSys.Instance.AddEvt(EventSys.FlyToHit, OnFlyToHitEvt);
+
     }
 
 
     /// <summary>
     /// 回到等待区等待起飞
     /// </summary>
-    public void ReturnWaitPoint()
+    void ReturnWaitPoint()
     {
         Vector3 tmpPos = GameManager.Instance.WaitPoint[(int)m_Camp].position;
         tmpPos.x += Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
@@ -58,6 +62,7 @@ public class Player : MonoBehaviour
 
         this.MaxMoveCount = 49;
         this.IsEndPath = false;
+        this.IsFly = false;
 
         switch (m_Camp)
         {
@@ -80,17 +85,43 @@ public class Player : MonoBehaviour
 
     }
 
+    /// <summary>
+    /// 飞机飞行意外撞机事件
+    /// </summary>
+    void OnFlyToHitEvt(object obj)
+    {
+        if (IsFly && IsEndPath && PathIndex == 2)
+        {
+            CampEnum otherCamp = (CampEnum)obj;
+            switch (m_Camp)
+            {
+                case CampEnum.Yellow:
+                    if (otherCamp.Equals(CampEnum.Green)) ReturnWaitPoint();
+                    break;
+                case CampEnum.Blue:
+                    if (otherCamp.Equals(CampEnum.Red)) ReturnWaitPoint();
+                    break;
+                case CampEnum.Green:
+                    if (otherCamp.Equals(CampEnum.Yellow)) ReturnWaitPoint();
+                    break;
+                case CampEnum.Red:
+                    if (otherCamp.Equals(CampEnum.Blue)) ReturnWaitPoint();
+                    break;
+                default:
+                    break;
+            }
 
+        }
+    }
 
 
     /// <summary>
-    /// 想目标移动一个单位格
+    /// 向目标移动一个单位格
     /// </summary>
     /// <param name="obj">[0]=>userUID, [1]=>dice</param>
-    public void MoveByDice(object obj)
+    void MoveByDice(object obj)
     {
         long[] param = (long[])obj;
-
 
         if (param[0] == UserUID)
         {
@@ -115,38 +146,58 @@ public class Player : MonoBehaviour
 
     IEnumerator DoMoveOneToForward(int moveNum)
     {
+        bool isSitDown = false;
         for (int i = 0; i < moveNum; i++)
         {
-            MoveOneToForward();
-            yield return new WaitForSeconds(0.1f);
+            if (i == (moveNum - 1)) isSitDown = true;
+            MoveOneToForward(isSitDown);
+            yield return new WaitForSeconds(0.3f);
         }
     }
 
     /// <summary>
     /// 移动一格
     /// </summary>
-    public void MoveOneToForward()
+    /// <param name="isSitDown">false本次移动是路过</param>
+    void MoveOneToForward(bool isSitDown = true)
     {
         OverMoveCount++;
         PathIndex++;
         if (IsEndPath)
         {
-            Vector3 pos = GameManager.Instance.EndPath[(int)m_Camp].GetChild(PathIndex).position;
-            transform.position = pos;
+            if (PathIndex == (GameManager.Instance.EndPath[(int)m_Camp].childCount - 1))
+            {
+                //winner TODO...
+            }
+            else
+            {
+                Vector3 pos = GameManager.Instance.EndPath[(int)m_Camp].GetChild(PathIndex).position;
+                transform.position = pos;
+            }
         }
         else
         {
+            if (PathIndex >= GameManager.Instance.PathList.Count) PathIndex = 0;
+
             Node node = GameManager.Instance.PathList[PathIndex];
             transform.localPosition = node.pos;
-            if (node.isFly)
+            if (isSitDown && node.isFly && node.camp == (int)m_Camp)
             {
-                //OverMoveCount += node.flyOver;
-                //PathIndex += node.flyOver;
-                //node = GameManager.Instance.PathList[PathIndex];
-                //transform.position = node.pos;
+                OverMoveCount += node.flyOver;
+                PathIndex += node.flyOver;
+                MaxMoveCount -= node.flyOver;
+
+                node = GameManager.Instance.PathList[PathIndex];
+                transform.localPosition = node.pos;
+
+                //飞机起飞触发意外撞机事件
+                EventSys.Instance.CallEvt(EventSys.FlyToHit, m_Camp);
+            }
+            else
+            {
+                MaxMoveCount--;
             }
 
-            MaxMoveCount--;
             if (MaxMoveCount == 0)
             {
                 IsEndPath = true;
@@ -159,6 +210,7 @@ public class Player : MonoBehaviour
     private void OnDestroy()
     {
         EventSys.Instance.RemoveEvt(EventSys.ThrowDice_OK, MoveByDice);
+        EventSys.Instance.RemoveEvt(EventSys.FlyToHit, OnFlyToHitEvt);
     }
 
 }

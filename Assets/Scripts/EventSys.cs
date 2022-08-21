@@ -63,9 +63,9 @@ public class EventSys
     public static readonly string Left_Bottom_ThrowDice = "Red方掷骰子";
     public static readonly string Right_Up_ThrowDice = "Blue方掷骰子";
     public static readonly string Right_Bottom_ThrowDice = "Green方掷骰子";
-
-
     public static readonly string ThrowDice_OK = "掷骰子结束";
 
+
+    public static readonly string FlyToHit = "飞机飞行意外撞击";
     #endregion
 }
