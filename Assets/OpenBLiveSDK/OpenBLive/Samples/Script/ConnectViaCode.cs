@@ -10,6 +10,7 @@ using OpenBLive.Runtime.Data;
 using OpenBLive.Runtime.Utilities;
 using UnityEngine;
 
+
 public class ConnectViaCode : MonoBehaviour
 {
     public static ConnectViaCode Instance
@@ -34,6 +35,13 @@ public class ConnectViaCode : MonoBehaviour
 
     public Action ConnectSuccess;
     public Action ConnectFailure;
+
+    #region
+    public event Action<Dm> OnDanmaku;
+    public event Action<SendGift> OnGift;
+    public event Action<Guard> OnGuardBuy;
+    public event Action<SuperChat> OnSuperChat;
+    #endregion
 
     public async void LinkStart(string code)
     {
@@ -102,6 +110,8 @@ public class ConnectViaCode : MonoBehaviour
         sb.Append(superChat.rmb);
         sb.Append("元");
         Debug.Log(sb);
+
+        OnSuperChat?.Invoke(superChat);
     }
 
     private void WebSocketBLiveClientOnGuardBuy(Guard guard)
@@ -113,6 +123,8 @@ public class ConnectViaCode : MonoBehaviour
         sb.Append("赠送了");
         sb.Append(guard.guardUnit);
         Debug.Log(sb);
+
+        OnGuardBuy?.Invoke(guard);
     }
 
     private void WebSocketBLiveClientOnGift(SendGift sendGift)
@@ -126,17 +138,27 @@ public class ConnectViaCode : MonoBehaviour
         sb.Append("个");
         sb.Append(sendGift.giftName);
         Debug.Log(sb);
+
+        OnGift?.Invoke(sendGift);
     }
 
     private void WebSocketBLiveClientOnDanmaku(Dm dm)
     {
         StringBuilder sb = new StringBuilder("收到弹幕!");
         sb.AppendLine();
+        sb.Append("用户UID：");
+        sb.Append(dm.uid);
+        sb.AppendLine();
+        sb.Append("用户face：");
+        sb.Append(dm.userFace);
+        sb.AppendLine();
         sb.Append("用户：");
         sb.AppendLine(dm.userName);
         sb.Append("弹幕内容：");
         sb.Append(dm.msg);
         Debug.Log(sb);
+
+        OnDanmaku?.Invoke(dm);
     }
 
 

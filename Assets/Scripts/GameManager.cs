@@ -1,7 +1,15 @@
+using OpenBLive.Runtime.Data;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
+using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
+using static Unity.Burst.Intrinsics.X86.Avx;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
@@ -51,9 +59,9 @@ public class GameManager : MonoBehaviour
             if (LoginPanel == null) LoginPanel = GameObject.Find("LoginPanel").transform;
             if (PlayPanel == null) PlayPanel = GameObject.Find("PlayPanel").transform;
 
-            //UIRoot.gameObject.SetActive(true);
-            //PlayPanel.gameObject.SetActive(false);
-            //LoginPanel.gameObject.SetActive(true);
+            UIRoot.gameObject.SetActive(true);
+            PlayPanel.gameObject.SetActive(false);
+            LoginPanel.gameObject.SetActive(true);
 
             BilibiliLoginManager loginMgr = LoginPanel.Find("loginUI").GetComponent<BilibiliLoginManager>();
             loginMgr?.LinkFailedEvent.AddListener(OnLinkFailedEvt);
@@ -74,7 +82,21 @@ public class GameManager : MonoBehaviour
             playerUiInfoDic.Add((int)CampEnum.Green, new Dictionary<long, PlayerUIInfo>());
             playerUiInfoDic.Add((int)CampEnum.Red, new Dictionary<long, PlayerUIInfo>());
         }
+
+        //init danmaku event
+        {
+            ConnectViaCode.Instance.OnDanmaku += OnDanmakuEvt;
+            ConnectViaCode.Instance.OnGift += OnGiftEvt;
+            ConnectViaCode.Instance.OnGuardBuy += OnGuard;
+            ConnectViaCode.Instance.OnSuperChat += OnSuperChat;
+        }
+
+        //init EventSys
+        {
+            EventSys.Instance.AddEvt(EventSys.Winner, OnWinnerEvt);
+        }
     }
+
 
 
     [ContextMenu("生成环形路径数据")]
@@ -103,11 +125,128 @@ public class GameManager : MonoBehaviour
 
 
     #region Private Func
+
+    #region On Danmaku Event
+    //弹幕
+    void OnDanmakuEvt(Dm dm)
+    {
+        switch (dm.msg)
+        {
+            case Config.Join_Yellow:
+                if (IsExistPlayer(dm.uid) == false)
+                {
+                    StartCoroutine(DoLoadPlayer(CampEnum.Yellow, dm.uid, dm.userName, dm.userFace));
+                }
+                else
+                {
+                    //已存在
+                    Debug.LogWarning($"{dm.userName} 已存在，加入错误");
+                }
+                break;
+            case Config.Join_Blue:
+                if (IsExistPlayer(dm.uid) == false)
+                {
+                    StartCoroutine(DoLoadPlayer(CampEnum.Blue, dm.uid, dm.userName, dm.userFace));
+                }
+                else
+                {
+                    //已存在
+                    Debug.LogWarning($"{dm.userName} 已存在，加入错误");
+                }
+                break;
+            case Config.Join_Green:
+                if (IsExistPlayer(dm.uid) == false)
+                {
+                    StartCoroutine(DoLoadPlayer(CampEnum.Green, dm.uid, dm.userName, dm.userFace));
+                }
+                else
+                {
+                    //已存在
+                    Debug.LogWarning($"{dm.userName} 已存在，加入错误");
+                }
+                break;
+            case Config.Join_Red:
+                if (IsExistPlayer(dm.uid) == false)
+                {
+                    StartCoroutine(DoLoadPlayer(CampEnum.Red, dm.uid, dm.userName, dm.userFace));
+                }
+                else
+                {
+                    //已存在
+                    Debug.LogWarning($"{dm.userName} 已存在，加入错误");
+                }
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    //送礼物
+    void OnGiftEvt(SendGift sendGift)
+    {
+
+    }
+
+    //收到大航海
+    void OnGuard(Guard guard)
+    {
+
+    }
+
+    //收到SC
+    void OnSuperChat(SuperChat sc)
+    {
+
+    }
+    #endregion
+
+
+    //加载Player
+    IEnumerator DoLoadPlayer(CampEnum camp, long userUID, string userName, string userFace)
+    {
+
+        Texture2D loadTexture = null;
+        Sprite loadFace = null;
+        using (UnityWebRequest webReq = new UnityWebRequest())
+        {
+            webReq.url = userFace;
+            webReq.method = UnityWebRequest.kHttpVerbGET;
+            webReq.downloadHandler = new DownloadHandlerTexture();
+            yield return webReq.SendWebRequest();
+            if (webReq.result == UnityWebRequest.Result.Success)
+            {
+                loadTexture = DownloadHandlerTexture.GetContent(webReq);
+                loadFace = Sprite.Create(loadTexture, new Rect(0, 0, loadTexture.width, loadTexture.height), new Vector2(0.5f, 0.5f));
+            }
+            else
+            {
+                //error
+                loadTexture = null;
+                loadFace = null;
+            }
+        }
+
+
+        LoadPlayer(camp, userUID, userName, loadFace);
+    }
+
     void OnLinkSuccessEvt()
     {
         LoginPanel.gameObject.SetActive(false);
         PlayPanel.gameObject.SetActive(true);
-        Debug.Log("链接成功");
+
+        int random = Random.Range(111, 1000);
+        LoadPlayer(CampEnum.Yellow, random, random.ToString(), null);
+        random = Random.Range(111, 1000);
+        LoadPlayer(CampEnum.Blue, random, random.ToString(), null);
+        random = Random.Range(111, 1000);
+        LoadPlayer(CampEnum.Green, random, random.ToString(), null);
+        random = Random.Range(111, 1000);
+        LoadPlayer(CampEnum.Red, random, random.ToString(), null);
+
+        isStartThrowDice = true;
+        Debug.Log("链接成功，游戏开始");
     }
 
     void OnLinkFailedEvt()
@@ -122,8 +261,37 @@ public class GameManager : MonoBehaviour
         ConnectViaCode.Instance?.LinkEnd();
     }
 
+    //有玩家到达终点
+    void OnWinnerEvt(object obj)
+    {
+        object[] result = (object[])obj;
+        CampEnum camp = (CampEnum)result[0];
+        long userUID = (long)result[1];
+
+
+        //清楚信息
+        if (playerDic.ContainsKey((int)camp))
+        {
+            if (playerDic[(int)camp].TryGetValue(userUID, out Player player))
+            {
+                playerDic[(int)camp].Remove(userUID);
+                Destroy(player.gameObject);
+            }
+        }
+
+        if (playerUiInfoDic.ContainsKey((int)camp))
+        {
+            if (playerUiInfoDic[(int)camp].TryGetValue(userUID, out PlayerUIInfo playerUIInfo))
+            {
+                playerUiInfoDic[(int)camp].Remove(userUID);
+                Destroy(playerUIInfo.gameObject);
+            }
+        }
+
+    }
+
     //实例化Player prefab
-    void LoadPlayer(CampEnum camp, long userUID, string userName, string userFace)
+    void LoadPlayer(CampEnum camp, long userUID, string userName, Sprite userFace)
     {
         if (playerDic[(int)camp].Count >= Config.MaxPlayer)
         {
@@ -162,7 +330,7 @@ public class GameManager : MonoBehaviour
     }
 
     //实例化Player UI Info Prefab
-    PlayerUIInfo LoadPlayerUIIngo(CampEnum camp, string username, long userUID, string userface, out GameObject obj)
+    PlayerUIInfo LoadPlayerUIIngo(CampEnum camp, string username, long userUID, Sprite userface, out GameObject obj)
     {
         PlayerUIInfo playerUIInfo = null;
         Transform parent = null;
@@ -189,6 +357,30 @@ public class GameManager : MonoBehaviour
                 return null;
         }
     }
+
+
+    bool IsExistPlayer(long userUID)
+    {
+        for (int i = 0; i < playerDic.Count; i++)
+        {
+            if (playerDic[i].ContainsKey(userUID))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //执行掷骰子事件
+    bool isStartThrowDice = false;
+    float throwTime = 2.0f;
+    int campThrow = (int)CampEnum.Red;
+    void ThrowDice_CallEvt()
+    {
+        campThrow += 1;
+        if (campThrow == 4) campThrow = 0;
+        EventSys.Instance.CallEvt(EventSys.ThrowDice, campThrow);
+    }
     #endregion
 
 
@@ -196,12 +388,24 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Application.targetFrameRate = 60;
         Init();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (isStartThrowDice)
+        {
+            throwTime += Time.deltaTime;
+            if (throwTime >= 4.0f)
+            {
+                throwTime = 0.0f;
+                ThrowDice_CallEvt();
+            }
+        }
+
+
         if (Input.GetKeyDown(KeyCode.A))
         {
             Debug.Log("Key Down [A]");
@@ -209,10 +413,8 @@ public class GameManager : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.S))
         {
             Debug.Log("Key Down [S]");
-            EventSys.Instance.CallEvt(EventSys.Left_Up_ThrowDice, null);
-            EventSys.Instance.CallEvt(EventSys.Right_Up_ThrowDice, null);
-            EventSys.Instance.CallEvt(EventSys.Right_Bottom_ThrowDice, null);
-            EventSys.Instance.CallEvt(EventSys.Left_Bottom_ThrowDice, null);
+            isStartThrowDice = !isStartThrowDice;
+
         }
 
         #region  For Test 弹幕命令
@@ -232,13 +434,13 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Key Down [3]");
             int random = Random.Range(1, 1000);
-            LoadPlayer(CampEnum.Green, random, random.ToString(), "");
+            LoadPlayer(CampEnum.Green, random, random.ToString(), null);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
             Debug.Log("Key Down [4]");
             int random = Random.Range(1, 1000);
-            LoadPlayer(CampEnum.Red, random, random.ToString(), "");
+            LoadPlayer(CampEnum.Red, random, random.ToString(), null);
         }
         #endregion
 

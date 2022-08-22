@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static Unity.Burst.Intrinsics.X86.Avx;
 
 public class Player : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class Player : MonoBehaviour
     public CampEnum m_Camp { get; private set; }//所属阵营
     public long UserUID { get; private set; }//玩家UID
     public string UserName { get; private set; }//玩家名
-    public string UserFace { get; private set; }//玩家头像
+    public Sprite UserFaceSprite { get; private set; }//玩家头像
     public int PathIndex { get; private set; }//玩家当前走到第几步【环形路径数据下标】
     public bool IsEndPath { get; private set; }//是否进入终段路径【默认false否】
     public int OverMoveCount { get; private set; }//玩家走了多少步
@@ -28,18 +29,24 @@ public class Player : MonoBehaviour
     /// <param name="userName"></param>
     /// <param name="userFace"></param>
     /// <param name="camp"></param>
-    public void Init(long userUID, string userName, string userFace, CampEnum camp)
+    public void Init(long userUID, string userName, Sprite userFace, CampEnum camp)
     {
         this.UserUID = userUID;
         this.UserName = userName;
-        this.UserFace = userFace;
+        this.UserFaceSprite = userFace;
         this.m_Camp = camp;
         this.OverMoveCount = 0;
 
+        gameObject.name = userName;
+
         bgImg.sprite = bgImg_Sprites[(int)camp];
-        if (string.IsNullOrEmpty(userFace))
+        if (userFace == null)
         {
             face.sprite = defaultFace_Sprites[(int)camp];
+        }
+        else
+        {
+            face.sprite = userFace;
         }
 
         ReturnWaitPoint();
@@ -162,39 +169,39 @@ public class Player : MonoBehaviour
     /// <param name="isSitDown">false本次移动是路过</param>
     void MoveOneToForward(bool isSitDown = true)
     {
-        OverMoveCount++;
-        PathIndex++;
+        OverMoveCount++;//步数+1
+        PathIndex++;//路径下标+1
+
         if (IsEndPath)
         {
-            if (PathIndex >= GameManager.Instance.EndPath[(int)m_Camp].childCount)
+            stepAudio?.Play();
+            Vector3 pos = GameManager.Instance.EndPath[(int)m_Camp].GetChild(PathIndex).position;
+            transform.position = pos;
+
+            if (PathIndex == GameManager.Instance.EndPath[(int)m_Camp].childCount - 1)
             {
-                //winner TODO...
-            }
-            else
-            {
-                stepAudio?.Play();
-                Vector3 pos = GameManager.Instance.EndPath[(int)m_Camp].GetChild(PathIndex).position;
-                transform.position = pos;
+                //winner
+                EventSys.Instance.CallEvt(EventSys.Winner, new object[] { m_Camp, UserUID });
             }
         }
         else
         {
             stepAudio?.Play();
-            if (PathIndex == GameManager.Instance.PathList.Count) PathIndex = 0;
+            if (PathIndex == GameManager.Instance.PathList.Count) PathIndex = 0;//限定路径下标
 
-            Node node = GameManager.Instance.PathList[PathIndex];
+            Node node = GameManager.Instance.PathList[PathIndex];//根据路径下标获取Node信息
             transform.position = node.pos;
             if (isSitDown && node.isFly && node.camp == (int)m_Camp)
-            {
+            {//达到自己可飞行领地
                 OverMoveCount += node.flyOver;
                 MaxMoveCount -= node.flyOver;
                 for (int i = 0; i < node.flyOver; i++)
                 {
                     PathIndex += 1;
-                    if (PathIndex == GameManager.Instance.PathList.Count) PathIndex = 0;
+                    if (PathIndex == GameManager.Instance.PathList.Count) PathIndex = 0;//限定路径下标
                 }
 
-                node = GameManager.Instance.PathList[PathIndex];
+                node = GameManager.Instance.PathList[PathIndex];//根据路径下标获取Node信息
                 transform.position = node.pos;
 
                 //飞机起飞触发意外撞机事件
@@ -202,12 +209,14 @@ public class Player : MonoBehaviour
             }
             else
             {
-                MaxMoveCount--;
+                MaxMoveCount--;//正常最大步数-1
             }
 
             if (MaxMoveCount == 0)
             {
+                //最大步数走完，进入终段路线
                 IsEndPath = true;
+                //重置下标
                 PathIndex = -1;
             }
         }

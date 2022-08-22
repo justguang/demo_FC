@@ -1,4 +1,5 @@
 ﻿
+
 /// <summary>
 /// 方向
 /// </summary>
@@ -22,15 +23,4 @@ public enum CampEnum
     Red
 }
 
-
-/// <summary>
-/// 弹幕命令
-/// </summary>
-public enum DmCodeEnum
-{
-    加入黄,
-    加入蓝,
-    加入绿,
-    加入红,
-}
 

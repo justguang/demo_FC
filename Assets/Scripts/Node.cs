@@ -10,6 +10,8 @@ public class Node
     public bool isFly;//5 => 17 +=12
     public int flyOver = 12;//如果来到自己可飞行领地，则向前走12个单位格【环形路径数据下标 (+=12) 】
 
+
+
     /// <summary>
     /// 生成地图数据
     /// </summary>

@@ -8,39 +8,55 @@ public class PlayerUIInfo : MonoBehaviour
     [SerializeField]
     private Image face;//玩家头像
     [SerializeField]
+    private Sprite[] defaultFace;//默认头像
+    private Sprite userFaceSprite;//玩家头像sprite
+    [SerializeField]
     private Text username;//玩家昵称
     [SerializeField]
     private AudioSource diceAudio;//掷骰子声
     [SerializeField]
     private Image dice;//骰子img
-    public Sprite[] DiceArr;//骰子sprite
+    [SerializeField]
+    private Sprite[] DiceArr;//骰子sprite
 
+    private bool isWinner = false;
 
     public long userUID;//玩家UID
-    public CampEnum camp;//阵营
+    public CampEnum m_Camp;//阵营
 
-    public void Init(CampEnum camp, string username, long userUID, string face = "")
+    public void Init(CampEnum camp, string username, long userUID, Sprite userFace)
     {
-        this.camp = camp;
+        this.m_Camp = camp;
         this.username.text = username;
         this.userUID = userUID;
+        this.userFaceSprite = userFace;
+        this.isWinner = false;
 
-        switch (camp)
+        gameObject.name = username;
+
+        if (userFace == null)
         {
-            case CampEnum.Yellow:
-                EventSys.Instance.AddEvt(EventSys.Left_Up_ThrowDice, OnThrowDiceEvt);
-                break;
-            case CampEnum.Blue:
-                EventSys.Instance.AddEvt(EventSys.Right_Up_ThrowDice, OnThrowDiceEvt);
-                break;
-            case CampEnum.Green:
-                EventSys.Instance.AddEvt(EventSys.Right_Bottom_ThrowDice, OnThrowDiceEvt);
-                break;
-            case CampEnum.Red:
-                EventSys.Instance.AddEvt(EventSys.Left_Bottom_ThrowDice, OnThrowDiceEvt);
-                break;
-            default:
-                break;
+            face.sprite = defaultFace[(int)m_Camp];
+        }
+        else
+        {
+            face.sprite = userFace;
+        }
+
+        EventSys.Instance.AddEvt(EventSys.ThrowDice, OnThrowDiceEvt);
+        EventSys.Instance.AddEvt(EventSys.Winner, OnWinnerEvt);
+    }
+
+    /// <summary>
+    /// 到达终点事件
+    /// </summary>
+    /// <param name="obj"></param>
+    void OnWinnerEvt(object obj)
+    {
+        object[] result = (object[])obj;
+        if ((long)result[1] == userUID)
+        {
+            isWinner = true;
         }
     }
 
@@ -50,7 +66,12 @@ public class PlayerUIInfo : MonoBehaviour
     /// <param name="obj"></param>
     void OnThrowDiceEvt(object obj)
     {
-        StartCoroutine(DoThrowDice());
+        int tmpCamp = (int)obj;
+        if (tmpCamp == (int)m_Camp && isWinner == false)
+        {
+            //轮到我方掷骰子
+            StartCoroutine(DoThrowDice());
+        }
     }
 
 
@@ -79,12 +100,11 @@ public class PlayerUIInfo : MonoBehaviour
 
 
 
+
     private void OnDestroy()
     {
-        EventSys.Instance.RemoveEvt(EventSys.Left_Up_ThrowDice, OnThrowDiceEvt);
-        EventSys.Instance.RemoveEvt(EventSys.Left_Bottom_ThrowDice, OnThrowDiceEvt);
-        EventSys.Instance.RemoveEvt(EventSys.Right_Up_ThrowDice, OnThrowDiceEvt);
-        EventSys.Instance.RemoveEvt(EventSys.Right_Bottom_ThrowDice, OnThrowDiceEvt);
+        EventSys.Instance.RemoveEvt(EventSys.ThrowDice, OnThrowDiceEvt);
+        EventSys.Instance.RemoveEvt(EventSys.Winner, OnWinnerEvt);
     }
 
 }

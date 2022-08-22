@@ -59,13 +59,12 @@ public class EventSys
 
     #region Event Code
     public static readonly string test = "test";
-    public static readonly string Left_Up_ThrowDice = "Yellow方掷骰子";
-    public static readonly string Left_Bottom_ThrowDice = "Red方掷骰子";
-    public static readonly string Right_Up_ThrowDice = "Blue方掷骰子";
-    public static readonly string Right_Bottom_ThrowDice = "Green方掷骰子";
+    public static readonly string ThrowDice = "掷骰子";
     public static readonly string ThrowDice_OK = "掷骰子结束";
 
 
     public static readonly string FlyToHit = "飞机飞行意外撞击";
+
+    public static readonly string Winner = "到达终点";
     #endregion
 }
