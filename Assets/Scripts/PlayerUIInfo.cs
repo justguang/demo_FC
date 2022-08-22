@@ -10,8 +10,11 @@ public class PlayerUIInfo : MonoBehaviour
     [SerializeField]
     private Text username;//玩家昵称
     [SerializeField]
+    private AudioSource diceAudio;//掷骰子声
+    [SerializeField]
     private Image dice;//骰子img
     public Sprite[] DiceArr;//骰子sprite
+
 
     public long userUID;//玩家UID
     public CampEnum camp;//阵营
@@ -56,6 +59,7 @@ public class PlayerUIInfo : MonoBehaviour
     /// </summary>
     IEnumerator DoThrowDice()
     {
+        diceAudio?.Play();
         int oldIndex = -1;
         int randomIndex = -1;
         for (int i = 0; i < 10; i++)

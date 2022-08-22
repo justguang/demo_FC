@@ -92,7 +92,7 @@ public class GameManager : MonoBehaviour
             PathList.Add(new Node
             {
                 isFly = isFly,
-                pos = chilTrans.localPosition,
+                pos = chilTrans.position,
                 camp = tmpCamp
             });
 

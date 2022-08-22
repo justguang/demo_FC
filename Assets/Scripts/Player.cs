@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Image face;//头像UI组件
     [SerializeField] private Sprite[] bgImg_Sprites;//头像背景
     [SerializeField] private Sprite[] defaultFace_Sprites;//默认头像
+    [SerializeField] private AudioSource stepAudio;
 
     public CampEnum m_Camp { get; private set; }//所属阵营
     public long UserUID { get; private set; }//玩家UID
@@ -151,7 +152,7 @@ public class Player : MonoBehaviour
         {
             if (i == (moveNum - 1)) isSitDown = true;
             MoveOneToForward(isSitDown);
-            yield return new WaitForSeconds(0.3f);
+            yield return new WaitForSeconds(0.42f);
         }
     }
 
@@ -171,24 +172,30 @@ public class Player : MonoBehaviour
             }
             else
             {
+                stepAudio?.Play();
                 Vector3 pos = GameManager.Instance.EndPath[(int)m_Camp].GetChild(PathIndex).position;
                 transform.position = pos;
             }
         }
         else
         {
+            stepAudio?.Play();
             if (PathIndex == GameManager.Instance.PathList.Count) PathIndex = 0;
 
             Node node = GameManager.Instance.PathList[PathIndex];
-            transform.localPosition = node.pos;
+            transform.position = node.pos;
             if (isSitDown && node.isFly && node.camp == (int)m_Camp)
             {
                 OverMoveCount += node.flyOver;
-                PathIndex += node.flyOver;
                 MaxMoveCount -= node.flyOver;
+                for (int i = 0; i < node.flyOver; i++)
+                {
+                    PathIndex += 1;
+                    if (PathIndex == GameManager.Instance.PathList.Count) PathIndex = 0;
+                }
 
                 node = GameManager.Instance.PathList[PathIndex];
-                transform.localPosition = node.pos;
+                transform.position = node.pos;
 
                 //飞机起飞触发意外撞机事件
                 EventSys.Instance.CallEvt(EventSys.FlyToHit, m_Camp);
