@@ -10,7 +10,7 @@ public static class Config
     //###  test 直播间ID 25701913
 
     //offset
-    public const float OffsetWaitPos = 20f;
+    public const float OffsetWaitPos = 80f;
     //每个阵营最多人数限制
     public const int MaxPlayer = 4;
 

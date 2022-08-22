@@ -95,6 +95,7 @@ public class GameManager : MonoBehaviour
         {
             EventSys.Instance.AddEvt(EventSys.Winner, OnWinnerEvt);
         }
+
     }
 
 
@@ -406,7 +407,7 @@ public class GameManager : MonoBehaviour
         if (isStartThrowDice)
         {
             throwTime += Time.deltaTime;
-            if (throwTime >= 4.0f)
+            if (throwTime >= 2.0f)
             {
                 throwTime = 0.0f;
                 ThrowDice_CallEvt();

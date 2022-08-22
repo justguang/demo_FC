@@ -17,6 +17,7 @@ public class Player : MonoBehaviour
     public string UserName { get; private set; }//玩家名
     public Sprite UserFaceSprite { get; private set; }//玩家头像
     public int PathIndex { get; private set; }//玩家当前走到第几步【环形路径数据下标】
+    public int EndPathIndex { get; private set; }//玩家当前走到终段第几步【路径数据下标】
     public bool IsEndPath { get; private set; }//是否进入终段路径【默认false否】
     public int OverMoveCount { get; private set; }//玩家走了多少步
     public int MaxMoveCount { get; private set; }//玩家需要走多少步才能进入终段
@@ -68,6 +69,7 @@ public class Player : MonoBehaviour
         tmpPos.y += Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
         transform.position = tmpPos;
 
+        this.EndPathIndex = 0;
         this.MaxMoveCount = 49;
         this.IsEndPath = false;
         this.IsFly = false;
@@ -75,16 +77,16 @@ public class Player : MonoBehaviour
         switch (m_Camp)
         {
             case CampEnum.Yellow:
-                PathIndex = -1;
+                PathIndex = 0;
                 break;
             case CampEnum.Blue:
-                PathIndex = 12;
+                PathIndex = 13;
                 break;
             case CampEnum.Green:
-                PathIndex = 25;
+                PathIndex = 26;
                 break;
             case CampEnum.Red:
-                PathIndex = 38;
+                PathIndex = 39;
                 break;
             default:
                 PathIndex = 99;
@@ -161,10 +163,11 @@ public class Player : MonoBehaviour
             MoveOneToForward(isSitDown);
             yield return new WaitForSeconds(0.42f);
 
-            if (IsEndPath && PathIndex == GameManager.Instance.EndPath[(int)m_Camp].childCount - 1)
+            if (IsEndPath && EndPathIndex == GameManager.Instance.EndPath[(int)m_Camp].childCount - 1)
             {
                 //winner
                 EventSys.Instance.CallEvt(EventSys.Winner, new object[] { m_Camp, UserUID });
+                break;
             }
         }
     }
@@ -176,14 +179,14 @@ public class Player : MonoBehaviour
     void MoveOneToForward(bool isSitDown = true)
     {
         OverMoveCount++;//步数+1
-        PathIndex++;//路径下标+1
 
         if (IsEndPath)
         {
             stepAudio?.Play();
-            Vector3 pos = GameManager.Instance.EndPath[(int)m_Camp].GetChild(PathIndex).position;
+            Vector3 pos = GameManager.Instance.EndPath[(int)m_Camp].GetChild(EndPathIndex).position;
             transform.position = pos;
 
+            EndPathIndex++;
         }
         else
         {
@@ -195,7 +198,6 @@ public class Player : MonoBehaviour
             if (isSitDown && node.isFly && node.camp == (int)m_Camp)
             {//达到自己可飞行领地
                 OverMoveCount += node.flyOver;
-                MaxMoveCount -= node.flyOver;
                 for (int i = 0; i < node.flyOver; i++)
                 {
                     PathIndex += 1;
@@ -205,22 +207,25 @@ public class Player : MonoBehaviour
                 node = GameManager.Instance.PathList[PathIndex];//根据路径下标获取Node信息
                 transform.position = node.pos;
 
+                MaxMoveCount -= node.flyOver;
+
                 //飞机起飞触发意外撞机事件
                 EventSys.Instance.CallEvt(EventSys.FlyToHit, m_Camp);
             }
             else
             {
                 MaxMoveCount--;//正常最大步数-1
+                PathIndex++;//路径下标+1
             }
 
             if (MaxMoveCount == 0)
             {
                 //最大步数走完，进入终段路线
                 IsEndPath = true;
-                //重置下标
-                PathIndex = -1;
             }
+
         }
+
     }
 
 
