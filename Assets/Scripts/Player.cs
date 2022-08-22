@@ -160,6 +160,12 @@ public class Player : MonoBehaviour
             if (i == (moveNum - 1)) isSitDown = true;
             MoveOneToForward(isSitDown);
             yield return new WaitForSeconds(0.42f);
+
+            if (IsEndPath && PathIndex == GameManager.Instance.EndPath[(int)m_Camp].childCount - 1)
+            {
+                //winner
+                EventSys.Instance.CallEvt(EventSys.Winner, new object[] { m_Camp, UserUID });
+            }
         }
     }
 
@@ -178,11 +184,6 @@ public class Player : MonoBehaviour
             Vector3 pos = GameManager.Instance.EndPath[(int)m_Camp].GetChild(PathIndex).position;
             transform.position = pos;
 
-            if (PathIndex == GameManager.Instance.EndPath[(int)m_Camp].childCount - 1)
-            {
-                //winner
-                EventSys.Instance.CallEvt(EventSys.Winner, new object[] { m_Camp, UserUID });
-            }
         }
         else
         {

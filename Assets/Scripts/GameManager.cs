@@ -246,6 +246,7 @@ public class GameManager : MonoBehaviour
         LoadPlayer(CampEnum.Red, random, random.ToString(), null);
 
         isStartThrowDice = true;
+
         Debug.Log("链接成功，游戏开始");
     }
 
@@ -276,6 +277,7 @@ public class GameManager : MonoBehaviour
             {
                 playerDic[(int)camp].Remove(userUID);
                 Destroy(player.gameObject);
+
             }
         }
 
@@ -288,6 +290,12 @@ public class GameManager : MonoBehaviour
             }
         }
 
+
+        if (playerDic[(int)camp].Count == 0)
+        {
+            int random = Random.Range(111, 1000);
+            LoadPlayer(camp, random, random.ToString(), null);
+        }
     }
 
     //实例化Player prefab
@@ -409,6 +417,18 @@ public class GameManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.A))
         {
             Debug.Log("Key Down [A]");
+            AudioSource audio = GetComponent<AudioSource>();
+            if (audio != null && audio.enabled)
+            {
+                if (audio.isPlaying)
+                {
+                    audio.Stop();
+                }
+                else
+                {
+                    audio.Play();
+                }
+            }
         }
         else if (Input.GetKeyDown(KeyCode.S))
         {
