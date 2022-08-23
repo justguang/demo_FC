@@ -1,7 +1,6 @@
 ﻿/// Credit Tomasz Schelenz 
 /// Sourced from - https://bitbucket.org/SimonDarksideJ/unity-ui-extensions/issues/46/feature-uiknob#comment-29243988
 
-using System;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
@@ -56,7 +55,7 @@ namespace UnityEngine.UI.Extensions
         private Vector2 _currentVector;
         private Quaternion _initRotation;
         private bool _canDrag = false;
-		private bool _screenSpaceOverlay;
+        private bool _screenSpaceOverlay;
 
         protected override void Awake()
         {
@@ -124,13 +123,13 @@ namespace UnityEngine.UI.Extensions
             base.OnPointerDown(eventData);
 
             _initRotation = transform.rotation;
-			if (_screenSpaceOverlay)
+            if (_screenSpaceOverlay)
             {
-				_currentVector = eventData.position - (Vector2)transform.position;
+                _currentVector = eventData.position - (Vector2)transform.position;
             }
             else
             {
-				_currentVector = eventData.position - (Vector2)Camera.main.WorldToScreenPoint(transform.position);
+                _currentVector = eventData.position - (Vector2)Camera.main.WorldToScreenPoint(transform.position);
             }
             _initAngle = Mathf.Atan2(_currentVector.y, _currentVector.x) * Mathf.Rad2Deg;
         }
@@ -143,14 +142,14 @@ namespace UnityEngine.UI.Extensions
                 return;
             }
 
-			if (_screenSpaceOverlay)
-			{
-				_currentVector = eventData.position - (Vector2)transform.position;
-			}
-			else
-			{
-				_currentVector = eventData.position - (Vector2)Camera.main.WorldToScreenPoint(transform.position);
-			}
+            if (_screenSpaceOverlay)
+            {
+                _currentVector = eventData.position - (Vector2)transform.position;
+            }
+            else
+            {
+                _currentVector = eventData.position - (Vector2)Camera.main.WorldToScreenPoint(transform.position);
+            }
             _currentAngle = Mathf.Atan2(_currentVector.y, _currentVector.x) * Mathf.Rad2Deg;
 
             Quaternion addRotation = Quaternion.AngleAxis(_currentAngle - _initAngle, this.transform.forward);

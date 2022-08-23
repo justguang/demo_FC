@@ -1,14 +1,8 @@
 using OpenBLive.Runtime.Data;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
-using Unity.Mathematics;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
-using static Unity.Burst.Intrinsics.X86.Avx;
 using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
@@ -407,7 +401,7 @@ public class GameManager : MonoBehaviour
         if (isStartThrowDice)
         {
             throwTime += Time.deltaTime;
-            if (throwTime >= 2.0f)
+            if (throwTime >= 3.8f)
             {
                 throwTime = 0.0f;
                 ThrowDice_CallEvt();

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TestEvtSystem : MonoBehaviour
@@ -23,7 +21,8 @@ public class TestEvtSystem : MonoBehaviour
             Debug.Log("Input Key Down [D]");
             EventSys.Instance.RemoveEvt(EventSys.test, CB);
             Debug.Log($"我是 {this.name}，删除 abc事件。");
-        }else if (Input.GetKeyDown(KeyCode.F))
+        }
+        else if (Input.GetKeyDown(KeyCode.F))
         {
             Debug.Log("Input Key Down [F]");
             EventSys.Instance.AddEvt(EventSys.test, CB);

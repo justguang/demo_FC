@@ -150,7 +150,7 @@ namespace UnityEngine.UI.Extensions.EasingCore
                 Mathf.Approximately(0.0f, v) || Mathf.Approximately(1.0f, v)
                     ? v
                     : v < 0.5f
-                        ?  0.5f * Mathf.Pow(2f, (20f * v) - 10f)
+                        ? 0.5f * Mathf.Pow(2f, (20f * v) - 10f)
                         : -0.5f * Mathf.Pow(2f, (-20f * v) + 10f) + 1f;
 
             float inQuad(float t) => t * t;
@@ -159,7 +159,7 @@ namespace UnityEngine.UI.Extensions.EasingCore
 
             float inOutQuad(float t) =>
                 t < 0.5f
-                    ?  2f * t * t
+                    ? 2f * t * t
                     : -2f * t * t + 4f * t - 1f;
 
             float inQuart(float t) => t * t * t * t;

@@ -109,7 +109,7 @@ namespace OpenBLive.Runtime.Utilities
         /// <param name="value">The number to convert. </param>
         /// <returns>An array of bytes with length 2.</returns>
         /// <remarks>You can convert a byte array back to a <see cref="UInt16"/> value by calling the <see cref="ToUInt16(byte[], int)"/> method.</remarks>
-        
+
         public byte[] GetBytes(ushort value)
         {
             return this.GetBytes((short)value);
@@ -121,7 +121,7 @@ namespace OpenBLive.Runtime.Utilities
         /// <param name="value">The number to convert.</param>
         /// <returns>An array of bytes with length 4.</returns>
         /// <remarks>You can convert a byte array back to a <see cref="UInt32"/> value by calling the <see cref="ToUInt32(byte[], int)"/> method.</remarks>
-        
+
         public byte[] GetBytes(uint value)
         {
             return this.GetBytes((int)value);
@@ -133,7 +133,7 @@ namespace OpenBLive.Runtime.Utilities
         /// <param name="value">The number to convert.</param>
         /// <returns>An array of bytes with length 8.</returns>
         /// <remarks>You can convert a byte array back to a <see cref="UInt64"/> value by calling the <see cref="ToUInt64(byte[], int)"/> method.</remarks>
-        
+
         public byte[] GetBytes(ulong value)
         {
             return this.GetBytes((long)value);
@@ -278,7 +278,7 @@ namespace OpenBLive.Runtime.Utilities
         /// <exception cref="ArgumentOutOfRangeException">
         /// <paramref name="startIndex"/> is less than zero or greater than the length of <paramref name="value"/> minus 2.
         /// </exception>
-        
+
         public ushort ToUInt16(byte[] value, int startIndex)
         {
             return (ushort)this.ToInt16(value, startIndex);
@@ -298,7 +298,7 @@ namespace OpenBLive.Runtime.Utilities
         /// <exception cref="ArgumentOutOfRangeException">
         /// <paramref name="startIndex"/> is less than zero or greater than the length of <paramref name="value"/> minus 4.
         /// </exception>
-        
+
         public uint ToUInt32(byte[] value, int startIndex)
         {
             return (uint)this.ToInt32(value, startIndex);
@@ -318,7 +318,7 @@ namespace OpenBLive.Runtime.Utilities
         /// <exception cref="ArgumentOutOfRangeException">
         /// <paramref name="startIndex"/> is less than zero or greater than the length of <paramref name="value"/> minus 8.
         /// </exception>
-        
+
         public ulong ToUInt64(byte[] value, int startIndex)
         {
             return (ulong)this.ToInt64(value, startIndex);

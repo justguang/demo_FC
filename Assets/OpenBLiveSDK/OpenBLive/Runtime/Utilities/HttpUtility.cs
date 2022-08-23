@@ -10,39 +10,40 @@ namespace OpenBLive.Runtime.Utilities
     {
         private sealed class HttpQsCollection : NameValueCollection
         {
-            public override string ToString ()
+            public override string ToString()
             {
                 int count = Count;
                 if (count == 0)
                     return "";
-                StringBuilder sb = new StringBuilder ();
-                string [] keys = AllKeys;
-                for (int i = 0; i < count; i++) {
-                    sb.AppendFormat ("{0}={1}&", keys [i], this [keys [i]]);
+                StringBuilder sb = new StringBuilder();
+                string[] keys = AllKeys;
+                for (int i = 0; i < count; i++)
+                {
+                    sb.AppendFormat("{0}={1}&", keys[i], this[keys[i]]);
                 }
                 if (sb.Length > 0)
                     sb.Length--;
-                return sb.ToString ();
+                return sb.ToString();
             }
         }
         public static NameValueCollection ParseQueryString(string query)
         {
-            return ParseQueryString (query, Encoding.UTF8);
+            return ParseQueryString(query, Encoding.UTF8);
         }
 
-        private static NameValueCollection ParseQueryString (string query, Encoding encoding)
+        private static NameValueCollection ParseQueryString(string query, Encoding encoding)
         {
             if (query == null)
-                throw new ArgumentNullException ("query");
+                throw new ArgumentNullException("query");
             if (encoding == null)
-                throw new ArgumentNullException ("encoding");
+                throw new ArgumentNullException("encoding");
             if (query.Length == 0 || (query.Length == 1 && query[0] == '?'))
-                return new HttpQsCollection ();
+                return new HttpQsCollection();
             if (query[0] == '?')
-                query = query.Substring (1);
-				
-            NameValueCollection result = new HttpQsCollection ();
-            ParseQueryString (query, encoding, result);
+                query = query.Substring(1);
+
+            NameValueCollection result = new HttpQsCollection();
+            ParseQueryString(query, encoding, result);
             return result;
         }
 

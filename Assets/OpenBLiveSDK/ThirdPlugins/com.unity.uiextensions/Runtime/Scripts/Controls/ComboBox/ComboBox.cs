@@ -59,7 +59,7 @@ namespace UnityEngine.UI.Extensions
         private List<string> _panelItems; //items that will get shown in the drop-down
 
         private Dictionary<string, GameObject> panelObjects;
-        
+
         private GameObject itemTemplate;
 
         public string Text { get; private set; }
@@ -86,7 +86,7 @@ namespace UnityEngine.UI.Extensions
                 RedrawPanel();
             }
         }
-        
+
         public void Awake()
         {
             Initialize();
@@ -278,8 +278,8 @@ namespace UnityEngine.UI.Extensions
 
                 _scrollPanelRT.SetParent(transform, true);//break the scroll panel from the overlay
                 _scrollPanelRT.anchoredPosition = _displayPanelAbove ?
-                    new Vector2(0, _rectTransform.sizeDelta.y * ItemsToDisplay - 1)  : 
-                    new Vector2(0, -_rectTransform.sizeDelta.y); 
+                    new Vector2(0, _rectTransform.sizeDelta.y * ItemsToDisplay - 1) :
+                    new Vector2(0, -_rectTransform.sizeDelta.y);
 
                 //make the overlay fill the screen
                 _overlayRT.SetParent(_canvas.transform, false); //attach it to top level object

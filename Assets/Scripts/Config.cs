@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-public static class Config
+﻿public static class Config
 {
     //###  key
     public const string Access_Key_Secret = "80TwyzdLH2uOzFRpl299qf41z12gFV";

@@ -2,11 +2,11 @@
 /// Sourced from - https://bitbucket.org/UnityUIExtensions/unity-ui-extensions/pull-requests/28
 /// Updated by SimonDarksideJ - Added some exception management and a SetNewItems to replace the content programmatically
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.EventSystems;
 using UnityEngine.Events;
-using System;
+using UnityEngine.EventSystems;
 
 namespace UnityEngine.UI.Extensions
 {
@@ -106,7 +106,7 @@ namespace UnityEngine.UI.Extensions
         private List<Vector3> contentPositions = new List<Vector3>();
         private Vector3 lerpTarget = Vector3.zero;
         private float totalScrollableWidth = 0;
-        private DrivenRectTransformTracker tracker ;
+        private DrivenRectTransformTracker tracker;
         private float mLerpTime = 0;
         private int _closestItem = 0;
         private bool mSliding = false;
@@ -180,7 +180,7 @@ namespace UnityEngine.UI.Extensions
         private void Awake()
         {
             scrollRect = GetComponent<ScrollRect>();
-            scrollRectTransform = (RectTransform) scrollRect.transform;
+            scrollRectTransform = (RectTransform)scrollRect.transform;
             contentTransform = scrollRect.content;
 
             if (nextButton)
@@ -415,7 +415,7 @@ namespace UnityEngine.UI.Extensions
                     {
                         if (availableChildIndex == clampedIndex)
                         {
-                            RectTransform startChild = (RectTransform) contentTransform.GetChild(i);
+                            RectTransform startChild = (RectTransform)contentTransform.GetChild(i);
                             float offset = DstFromTopLeftOfTransformToTopLeftOfParent(startChild).x + ((startChild.sizeDelta.x - scrollRectTransform.sizeDelta.x) / 2);
                             scrollRect.horizontalNormalizedPosition = offset / totalScrollableWidth;
                             lerpTarget = contentTransform.localPosition;

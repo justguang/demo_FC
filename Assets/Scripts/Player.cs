@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static Unity.Burst.Intrinsics.X86.Avx;
 
 public class Player : MonoBehaviour
 {
@@ -159,7 +157,7 @@ public class Player : MonoBehaviour
         {
             if (i == (moveNum - 1)) isSitDown = true;
             MoveOneToForward(isSitDown);
-            yield return new WaitForSeconds(0.42f);
+            yield return new WaitForSeconds(0.415f);
 
             if (IsEndPath && PathIndex == GameManager.Instance.EndPath[(int)m_Camp].childCount)
             {
@@ -188,9 +186,9 @@ public class Player : MonoBehaviour
         {
             stepAudio?.Play();
             if (PathIndex == GameManager.Instance.PathList.Count) PathIndex = 0;//限定路径下标
-
             Node node = GameManager.Instance.PathList[PathIndex];//根据路径下标获取Node信息
             transform.position = node.pos;
+            
             if (isSitDown && node.isFly && node.camp == (int)m_Camp)
             {//达到自己可飞行领地
                 OverMoveCount += node.flyOver;
@@ -219,7 +217,6 @@ public class Player : MonoBehaviour
                 //重置下标
                 PathIndex = -1;
             }
-
         }
 
         PathIndex++;//路径下标+1

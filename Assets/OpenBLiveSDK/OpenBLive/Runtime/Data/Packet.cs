@@ -1,11 +1,7 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Text;
 
 #if UNITY_2021_2_OR_NEWER || NET5_0_OR_GREATER
-using System.Buffers;
 #else
 using System.Net;
 #endif
@@ -68,7 +64,7 @@ namespace OpenBLive.Runtime.Data
                     Header.PacketLength = Header.HeaderLength;
                 var arr = new byte[Header.PacketLength];
 #if UNITY_2021_2_OR_NEWER || NET5_0_OR_GREATER
-                Array.Copy(((ReadOnlySpan<byte>) Header).ToArray(), arr, Header.HeaderLength);
+                Array.Copy(((ReadOnlySpan<byte>)Header).ToArray(), arr, Header.HeaderLength);
 #else
                 Array.Copy((byte[]) Header, arr, Header.HeaderLength);
 #endif

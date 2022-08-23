@@ -20,7 +20,7 @@ namespace UnityEngine.UI.Extensions
             foreach (Transform transform in Selection.transforms)
             {
                 RectTransform t = transform as RectTransform;
-                Undo.RecordObject( t, "AnchorsToCorners" );
+                Undo.RecordObject(t, "AnchorsToCorners");
                 RectTransform pt = Selection.activeTransform.parent as RectTransform;
 
                 if (t == null || pt == null) return;
@@ -51,7 +51,7 @@ namespace UnityEngine.UI.Extensions
             foreach (Transform transform in Selection.transforms)
             {
                 RectTransform t = transform as RectTransform;
-                Undo.RecordObject( t, "CornersToAnchors" );
+                Undo.RecordObject(t, "CornersToAnchors");
 
                 if (t == null) return;
 

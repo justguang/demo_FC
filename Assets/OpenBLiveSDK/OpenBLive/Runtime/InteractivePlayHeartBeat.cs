@@ -1,9 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using OpenBLive.Runtime.Data;
-using OpenBLive.Runtime.Utilities;
 
 namespace OpenBLive.Runtime
 {
@@ -79,7 +77,7 @@ namespace OpenBLive.Runtime
                     return;
                 }
 
-             
+
             }
         }
 

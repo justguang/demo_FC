@@ -12,7 +12,8 @@ namespace UnityEngine.UI.Extensions
         [TextAreaAttribute]
         public string text;
 
-        public enum TooltipPositioningType {
+        public enum TooltipPositioningType
+        {
             mousePosition,
             mousePositionAndFollow,
             transformPosition
@@ -31,10 +32,12 @@ namespace UnityEngine.UI.Extensions
         public Vector3 offset;
 
 
-        void Start() {
+        void Start()
+        {
             //attempt to check if our canvas is overlay or not and check our "is overlay" accordingly
             Canvas ourCanvas = GetComponentInParent<Canvas>();
-            if (ourCanvas && ourCanvas.renderMode == RenderMode.ScreenSpaceOverlay) {
+            if (ourCanvas && ourCanvas.renderMode == RenderMode.ScreenSpaceOverlay)
+            {
                 isChildOfOverlayCanvas = true;
             }
         }
@@ -53,7 +56,8 @@ namespace UnityEngine.UI.Extensions
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            switch (tooltipPositioningType) {
+            switch (tooltipPositioningType)
+            {
                 case TooltipPositioningType.mousePosition:
                     StartHover(UIExtensionsInputManager.MousePosition + offset, true);
                     break;
@@ -63,15 +67,17 @@ namespace UnityEngine.UI.Extensions
                     StartCoroutine(HoveredMouseFollowingLoop());
                     break;
                 case TooltipPositioningType.transformPosition:
-                    StartHover((WorldToScreenIsRequired ? 
+                    StartHover((WorldToScreenIsRequired ?
                         ToolTip.Instance.GuiCamera.WorldToScreenPoint(transform.position) :
                         transform.position) + offset, true);
                     break;
             }
         }
 
-        IEnumerator HoveredMouseFollowingLoop() {
-            while (hovered) {
+        IEnumerator HoveredMouseFollowingLoop()
+        {
+            while (hovered)
+            {
                 StartHover(UIExtensionsInputManager.MousePosition + offset);
                 yield return null;
             }
@@ -79,7 +85,7 @@ namespace UnityEngine.UI.Extensions
 
         public void OnSelect(BaseEventData eventData)
         {
-            StartHover((WorldToScreenIsRequired ? 
+            StartHover((WorldToScreenIsRequired ?
                 ToolTip.Instance.GuiCamera.WorldToScreenPoint(transform.position) :
                         transform.position) + offset, true);
         }

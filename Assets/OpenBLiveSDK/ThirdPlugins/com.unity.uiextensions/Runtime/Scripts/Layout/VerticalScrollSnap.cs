@@ -17,7 +17,7 @@ namespace UnityEngine.UI.Extensions
         void Start()
         {
             _isVertical = true;
-            _childAnchorPoint = new Vector2(0.5f,0);
+            _childAnchorPoint = new Vector2(0.5f, 0);
             _currentPage = StartingScreen;
             panelDimensions = gameObject.GetComponent<RectTransform>().rect;
             UpdateLayout();
@@ -57,7 +57,7 @@ namespace UnityEngine.UI.Extensions
             if (!_pointerDown)
             {
                 if (_scroll_rect.velocity.y > 0.01 || _scroll_rect.velocity.y < -0.01)
-            {
+                {
                     // if the pointer is released and is moving slower than the threshold, then just land on a page
                     if (IsRectMovingSlowerThanThreshold(0))
                     {

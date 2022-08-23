@@ -48,7 +48,7 @@ namespace UnityEngine.UI.Extensions
 
         //Scrollable area (content of desired ScrollRect)
         [HideInInspector]
-        public RectTransform scrollingPanel{ get { return scrollRect.content; } }
+        public RectTransform scrollingPanel { get { return scrollRect.content; } }
 
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace UnityEngine.UI.Extensions
                 for (int i = 0; i < scrollingPanel.childCount; i++)
                 {
                     _arrayOfElements[i] = scrollingPanel.GetChild(i).gameObject;
-                }     
+                }
             }
         }
 
@@ -246,7 +246,7 @@ namespace UnityEngine.UI.Extensions
         }
 
         [System.Serializable]
-        public class IntEvent:UnityEvent<int>
+        public class IntEvent : UnityEvent<int>
         {
 
         }

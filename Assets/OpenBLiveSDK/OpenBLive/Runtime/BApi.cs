@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading;
+﻿using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OpenBLive.Runtime.Data;
 using OpenBLive.Runtime.Utilities;
-using Logger = OpenBLive.Runtime.Utilities.Logger;
 #if NET5_0_OR_GREATER
 using System.Net;
 #elif UNITY_2020_3_OR_NEWER

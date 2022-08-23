@@ -21,141 +21,150 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using System;
-using System.Collections;
 
 namespace UnityEngine.UI.Extensions
 {
 
-	public class TextPicRenameEditor : EditorWindow {
-		[MenuItem("Window/UI/Extensions/TextPic Rename Icons and Text")]
-		protected static void ShowTextPicRenameEditor() {
-			var wnd = GetWindow<TextPicRenameEditor>();
-			wnd.titleContent.text = "Rename Icon List";
-			wnd.Show();
-		}
+    public class TextPicRenameEditor : EditorWindow
+    {
+        [MenuItem("Window/UI/Extensions/TextPic Rename Icons and Text")]
+        protected static void ShowTextPicRenameEditor()
+        {
+            var wnd = GetWindow<TextPicRenameEditor>();
+            wnd.titleContent.text = "Rename Icon List";
+            wnd.Show();
+        }
 
-		private GameObject o;
+        private GameObject o;
 
-		private static int columnWidth = 300;
+        private static int columnWidth = 300;
 
-		private string prefix;
-		private string suffix;
-		private string originalText;
-		private string replacementText;
+        private string prefix;
+        private string suffix;
+        private string originalText;
+        private string replacementText;
 
-		public void Rename(GameObject o) {
-			#if UNITY_EDITOR
-			Debug.Log("Changing icons and text for " + o.name);
+        public void Rename(GameObject o)
+        {
+#if UNITY_EDITOR
+            Debug.Log("Changing icons and text for " + o.name);
 
 
-			TextPic[] children = o.GetComponentsInChildren<TextPic>(true);
-			for(int i = 0; i < children.Length; i++) {
-				if (children[i] != null) {
-					for (int j = 0; j < children[i].inspectorIconList.Length; j++) {
-						if (!string.IsNullOrEmpty(originalText) 
-						&& children[i].inspectorIconList[j].name.Contains(originalText)) { 
-							children[i].text.Replace(originalText, replacementText);
-							children[i].inspectorIconList[j].name = children[i].inspectorIconList[j].name.Replace(originalText, replacementText);
-							Debug.Log("Renamed icon for " + children[i].inspectorIconList[j].name);
-						}
+            TextPic[] children = o.GetComponentsInChildren<TextPic>(true);
+            for (int i = 0; i < children.Length; i++)
+            {
+                if (children[i] != null)
+                {
+                    for (int j = 0; j < children[i].inspectorIconList.Length; j++)
+                    {
+                        if (!string.IsNullOrEmpty(originalText)
+                        && children[i].inspectorIconList[j].name.Contains(originalText))
+                        {
+                            children[i].text.Replace(originalText, replacementText);
+                            children[i].inspectorIconList[j].name = children[i].inspectorIconList[j].name.Replace(originalText, replacementText);
+                            Debug.Log("Renamed icon for " + children[i].inspectorIconList[j].name);
+                        }
 
-						if (!string.IsNullOrEmpty(prefix) 
-						&& !string.IsNullOrEmpty(suffix) 
-						&& !children[i].inspectorIconList[j].name.StartsWith(prefix) 
-						&& !children[i].inspectorIconList[j].name.EndsWith(suffix)) {
-							children[i].text.Replace(children[i].inspectorIconList[j].name, prefix + children[i].inspectorIconList[j].name + suffix);
-							children[i].inspectorIconList[j].name = prefix + children[i].inspectorIconList[j].name + suffix;
-							Debug.Log("Renamed icon for " + children[i].inspectorIconList[j].name);
-						}
-					}
-					children[i].ResetIconList();
+                        if (!string.IsNullOrEmpty(prefix)
+                        && !string.IsNullOrEmpty(suffix)
+                        && !children[i].inspectorIconList[j].name.StartsWith(prefix)
+                        && !children[i].inspectorIconList[j].name.EndsWith(suffix))
+                        {
+                            children[i].text.Replace(children[i].inspectorIconList[j].name, prefix + children[i].inspectorIconList[j].name + suffix);
+                            children[i].inspectorIconList[j].name = prefix + children[i].inspectorIconList[j].name + suffix;
+                            Debug.Log("Renamed icon for " + children[i].inspectorIconList[j].name);
+                        }
+                    }
+                    children[i].ResetIconList();
 
-					Debug.Log("Renamed icons for " + children[i].name);
-				}
-			}
-			#endif
-		}
+                    Debug.Log("Renamed icons for " + children[i].name);
+                }
+            }
+#endif
+        }
 
-		public void OnGUI() {
-			GUILayout.Label("Select a GameObject to rename TextPic icons and text", EditorStyles.boldLabel);
-			EditorGUILayout.Separator();
-			GUILayout.Label("GameObject", EditorStyles.boldLabel);
+        public void OnGUI()
+        {
+            GUILayout.Label("Select a GameObject to rename TextPic icons and text", EditorStyles.boldLabel);
+            EditorGUILayout.Separator();
+            GUILayout.Label("GameObject", EditorStyles.boldLabel);
 
-			EditorGUI.BeginChangeCheck();
-			
-			if (Selection.activeGameObject != null) {
-				o = Selection.activeGameObject;
-			}
-			EditorGUILayout.ObjectField(o, typeof(GameObject), true);
-			EditorGUI.EndChangeCheck();
+            EditorGUI.BeginChangeCheck();
 
-			if (o != null) {
-				
-				EditorGUILayout.BeginHorizontal();
-				
-				GUILayout.Label("Prefix:", GUILayout.Width(columnWidth));
+            if (Selection.activeGameObject != null)
+            {
+                o = Selection.activeGameObject;
+            }
+            EditorGUILayout.ObjectField(o, typeof(GameObject), true);
+            EditorGUI.EndChangeCheck();
 
-				EditorGUILayout.EndHorizontal();
-				
-				EditorGUILayout.BeginHorizontal();
-				
-				prefix = EditorGUILayout.TextField(prefix, GUILayout.Width(columnWidth));
+            if (o != null)
+            {
 
-				EditorGUILayout.EndHorizontal();
+                EditorGUILayout.BeginHorizontal();
 
-				EditorGUILayout.Separator();
-				
-				EditorGUILayout.BeginHorizontal();
-				
-				GUILayout.Label("Original Text:", GUILayout.Width(columnWidth));
-				
-				GUILayout.Label("Replacement Text:", GUILayout.Width(columnWidth));
+                GUILayout.Label("Prefix:", GUILayout.Width(columnWidth));
 
-				EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndHorizontal();
 
-				EditorGUILayout.Separator();
-				
-				EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.BeginHorizontal();
 
-				originalText = EditorGUILayout.TextField(originalText, GUILayout.Width(columnWidth));
+                prefix = EditorGUILayout.TextField(prefix, GUILayout.Width(columnWidth));
 
-				replacementText = EditorGUILayout.TextField(replacementText, GUILayout.Width(columnWidth));
+                EditorGUILayout.EndHorizontal();
 
-				EditorGUILayout.EndHorizontal();
+                EditorGUILayout.Separator();
 
-				EditorGUILayout.Separator();
+                EditorGUILayout.BeginHorizontal();
 
-				EditorGUILayout.BeginHorizontal();
-				GUILayout.Label("Suffix:", GUILayout.Width(columnWidth));
+                GUILayout.Label("Original Text:", GUILayout.Width(columnWidth));
 
-				EditorGUILayout.EndHorizontal();
+                GUILayout.Label("Replacement Text:", GUILayout.Width(columnWidth));
 
-				EditorGUILayout.Separator();
+                EditorGUILayout.EndHorizontal();
 
-				EditorGUILayout.BeginHorizontal();
-				suffix = EditorGUILayout.TextField(suffix, GUILayout.Width(columnWidth));
+                EditorGUILayout.Separator();
 
-				EditorGUILayout.EndHorizontal();
+                EditorGUILayout.BeginHorizontal();
 
-				EditorGUILayout.Separator();
+                originalText = EditorGUILayout.TextField(originalText, GUILayout.Width(columnWidth));
 
-				EditorGUILayout.BeginHorizontal();
-				if (GUILayout.Button("Rename Icons and Text")) {
-					#if UNITY_EDITOR
-					Rename(o);
-					#endif
-				}
+                replacementText = EditorGUILayout.TextField(replacementText, GUILayout.Width(columnWidth));
 
-				EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndHorizontal();
 
-				EditorGUILayout.Separator();
-			}
-		}
-	}
+                EditorGUILayout.Separator();
+
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label("Suffix:", GUILayout.Width(columnWidth));
+
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.Separator();
+
+                EditorGUILayout.BeginHorizontal();
+                suffix = EditorGUILayout.TextField(suffix, GUILayout.Width(columnWidth));
+
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.Separator();
+
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Rename Icons and Text"))
+                {
+#if UNITY_EDITOR
+                    Rename(o);
+#endif
+                }
+
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.Separator();
+            }
+        }
+    }
 
 }

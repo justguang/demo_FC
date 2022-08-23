@@ -34,7 +34,7 @@ public class EventSys
         }
     }
 
-    public void RemoveEvt(string evtCode,Action<object> callback)
+    public void RemoveEvt(string evtCode, Action<object> callback)
     {
         if (evtDic.ContainsKey(evtCode))
         {
@@ -42,7 +42,7 @@ public class EventSys
         }
     }
 
-    public void CallEvt(string evtCode,object param)
+    public void CallEvt(string evtCode, object param)
     {
         if (evtDic.ContainsKey(evtCode))
         {

@@ -321,7 +321,7 @@ namespace UnityEngine.UI.Extensions
                 m_LowHandleContainerRect = null;
             }
         }
-        
+
         void SetLow(float input)
         {
             SetLow(input, true);
@@ -461,7 +461,7 @@ namespace UnityEngine.UI.Extensions
         }
 
         private float CalculateDrag(PointerEventData eventData, Camera cam, RectTransform containerRect, Vector2 offset)
-        { 
+        {
             RectTransform clickRect = containerRect ?? m_FillContainerRect;
             if (clickRect != null && clickRect.rect.size[0] > 0)
             {
@@ -497,7 +497,7 @@ namespace UnityEngine.UI.Extensions
                 if (NormalizedLowValue >= 0 && NormalizedHighValue <= 1)
                 {
                     //find the mid point on the current bar
-                    float mid = (NormalizedHighValue + NormalizedLowValue)/2;
+                    float mid = (NormalizedHighValue + NormalizedLowValue) / 2;
                     //find where the new mid point should be
                     float val = Mathf.Clamp01((localCursor)[0] / clickRect.rect.size[0]);
                     //calculate the delta

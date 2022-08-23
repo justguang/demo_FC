@@ -21,110 +21,118 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using System;
-using System.Collections;
 
 namespace UnityEngine.UI.Extensions
 {
 
-	public class TextPicIconEditor : EditorWindow {
-		[MenuItem("Window/UI/Extensions/TextPic Edit Icons")]
-		protected static void ShowTextPicIconEditor() {
-			var wnd = GetWindow<TextPicIconEditor>();
-			wnd.titleContent.text = "Edit Icons in TextPic";
-			wnd.Show();
-		}
+    public class TextPicIconEditor : EditorWindow
+    {
+        [MenuItem("Window/UI/Extensions/TextPic Edit Icons")]
+        protected static void ShowTextPicIconEditor()
+        {
+            var wnd = GetWindow<TextPicIconEditor>();
+            wnd.titleContent.text = "Edit Icons in TextPic";
+            wnd.Show();
+        }
 
-		private GameObject o;
+        private GameObject o;
 
-		private static int columnWidth = 300;
+        private static int columnWidth = 300;
 
-		private string iconName;
-		private Sprite icon;
+        private string iconName;
+        private Sprite icon;
 
-		public void Swap(GameObject o) {
-			#if UNITY_EDITOR
-			Debug.Log("Editing icons for " + o.name);
+        public void Swap(GameObject o)
+        {
+#if UNITY_EDITOR
+            Debug.Log("Editing icons for " + o.name);
 
 
-			TextPic[] children = o.GetComponentsInChildren<TextPic>(true);
-			for(int i = 0; i < children.Length; i++) {
-				if (children[i] != null) {
-					for (int j = 0; j < children[i].inspectorIconList.Length; j++) {
-						if (!string.IsNullOrEmpty(iconName) 
-						&& children[i].inspectorIconList[j].name == iconName) { 
-							children[i].inspectorIconList[j].sprite = icon;
-							Debug.Log("Swapped icon for " + children[i].inspectorIconList[j].name);
-						}
-					}
-					children[i].ResetIconList();
+            TextPic[] children = o.GetComponentsInChildren<TextPic>(true);
+            for (int i = 0; i < children.Length; i++)
+            {
+                if (children[i] != null)
+                {
+                    for (int j = 0; j < children[i].inspectorIconList.Length; j++)
+                    {
+                        if (!string.IsNullOrEmpty(iconName)
+                        && children[i].inspectorIconList[j].name == iconName)
+                        {
+                            children[i].inspectorIconList[j].sprite = icon;
+                            Debug.Log("Swapped icon for " + children[i].inspectorIconList[j].name);
+                        }
+                    }
+                    children[i].ResetIconList();
 
-					Debug.Log("Swapped icons for " + children[i].name);
-				}
-			}
-			#endif
-		}
+                    Debug.Log("Swapped icons for " + children[i].name);
+                }
+            }
+#endif
+        }
 
-		public void OnGUI() {
-			GUILayout.Label("Select a GameObject to edit TextPic icons", EditorStyles.boldLabel);
-			EditorGUILayout.Separator();
-			GUILayout.Label("GameObject", EditorStyles.boldLabel);
+        public void OnGUI()
+        {
+            GUILayout.Label("Select a GameObject to edit TextPic icons", EditorStyles.boldLabel);
+            EditorGUILayout.Separator();
+            GUILayout.Label("GameObject", EditorStyles.boldLabel);
 
-			EditorGUI.BeginChangeCheck();
-			
-			if (Selection.activeGameObject != null) {
-				o = Selection.activeGameObject;
-			}
-			EditorGUILayout.ObjectField(o, typeof(GameObject), true);
-			EditorGUI.EndChangeCheck();
+            EditorGUI.BeginChangeCheck();
 
-			if (o != null) {
-				EditorGUILayout.BeginHorizontal();
+            if (Selection.activeGameObject != null)
+            {
+                o = Selection.activeGameObject;
+            }
+            EditorGUILayout.ObjectField(o, typeof(GameObject), true);
+            EditorGUI.EndChangeCheck();
 
-				GUILayout.Label("Icon Name:", GUILayout.Width(columnWidth));
+            if (o != null)
+            {
+                EditorGUILayout.BeginHorizontal();
 
-				EditorGUILayout.EndHorizontal();
+                GUILayout.Label("Icon Name:", GUILayout.Width(columnWidth));
 
-				EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.EndHorizontal();
 
-				iconName = EditorGUILayout.TextField(iconName, GUILayout.Width(columnWidth));
+                EditorGUILayout.BeginHorizontal();
 
-				EditorGUILayout.EndHorizontal();
+                iconName = EditorGUILayout.TextField(iconName, GUILayout.Width(columnWidth));
 
-				EditorGUILayout.Separator();
-				
-				EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.EndHorizontal();
 
-				GUILayout.Label("New Sprite:", GUILayout.Width(columnWidth));
+                EditorGUILayout.Separator();
 
-				EditorGUILayout.EndHorizontal();
+                EditorGUILayout.BeginHorizontal();
 
-				EditorGUILayout.Separator();
+                GUILayout.Label("New Sprite:", GUILayout.Width(columnWidth));
 
-				EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.EndHorizontal();
 
-				icon = (Sprite)EditorGUILayout.ObjectField(icon, typeof(Sprite), false, GUILayout.Width(columnWidth));
+                EditorGUILayout.Separator();
 
-				EditorGUILayout.EndHorizontal();
+                EditorGUILayout.BeginHorizontal();
 
-				EditorGUILayout.Separator();
+                icon = (Sprite)EditorGUILayout.ObjectField(icon, typeof(Sprite), false, GUILayout.Width(columnWidth));
 
-				EditorGUILayout.BeginHorizontal();
-				if (GUILayout.Button("Edit Icons")) {
-					#if UNITY_EDITOR
-					Swap(o);
-					#endif
-				}
+                EditorGUILayout.EndHorizontal();
 
-				EditorGUILayout.EndHorizontal();
+                EditorGUILayout.Separator();
 
-				EditorGUILayout.Separator();
-			}
-		}
-	}
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Edit Icons"))
+                {
+#if UNITY_EDITOR
+                    Swap(o);
+#endif
+                }
+
+                EditorGUILayout.EndHorizontal();
+
+                EditorGUILayout.Separator();
+            }
+        }
+    }
 
 }

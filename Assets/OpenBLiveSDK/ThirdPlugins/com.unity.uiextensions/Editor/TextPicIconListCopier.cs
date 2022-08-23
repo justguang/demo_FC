@@ -21,120 +21,134 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace UnityEngine.UI.Extensions
 {
 
-	public class TextPicIconListCopier : EditorWindow {
-		[MenuItem("Window/UI/Extensions/TextPic Copy Icon Lists")]
-		protected static void ShowTextPicIconListCopier() {
-			var wnd = GetWindow<TextPicIconListCopier>();
-			wnd.titleContent.text = "Copy Icons in TextPic";
-			wnd.Show();
-		}
+    public class TextPicIconListCopier : EditorWindow
+    {
+        [MenuItem("Window/UI/Extensions/TextPic Copy Icon Lists")]
+        protected static void ShowTextPicIconListCopier()
+        {
+            var wnd = GetWindow<TextPicIconListCopier>();
+            wnd.titleContent.text = "Copy Icons in TextPic";
+            wnd.Show();
+        }
 
-		private List<TextPic> textPicList = new List<TextPic>();
+        private List<TextPic> textPicList = new List<TextPic>();
 
-		#if UNITY_EDITOR
-		void OnSelectionChange() {
-			if (Selection.objects.Length > 1 )
-			{
-				Debug.Log ("Length? " + Selection.objects.Length);
-				textPicList.Clear();
+#if UNITY_EDITOR
+        void OnSelectionChange()
+        {
+            if (Selection.objects.Length > 1)
+            {
+                Debug.Log("Length? " + Selection.objects.Length);
+                textPicList.Clear();
 
-				foreach ( Object o in Selection.objects ) {
-					if ( o is GameObject ) {
-						TextPic tp = ((GameObject)o).GetComponent<TextPic>();
-						if (tp != null) {
-							textPicList.Add(tp);
-						}
-					}
-				}
-			}
-			else if (Selection.activeObject is GameObject) {
-				textPicList.Clear();
-				TextPic tp = ((GameObject)Selection.activeObject).GetComponent<TextPic>();
-				if (tp != null) {
-					textPicList.Add(tp);
-				}
-			} 
-			else {
-				textPicList.Clear();
-			}
-			
-			this.Repaint();
-		}
-		#endif
+                foreach (Object o in Selection.objects)
+                {
+                    if (o is GameObject)
+                    {
+                        TextPic tp = ((GameObject)o).GetComponent<TextPic>();
+                        if (tp != null)
+                        {
+                            textPicList.Add(tp);
+                        }
+                    }
+                }
+            }
+            else if (Selection.activeObject is GameObject)
+            {
+                textPicList.Clear();
+                TextPic tp = ((GameObject)Selection.activeObject).GetComponent<TextPic>();
+                if (tp != null)
+                {
+                    textPicList.Add(tp);
+                }
+            }
+            else
+            {
+                textPicList.Clear();
+            }
 
-		private static int columnWidth = 300;
+            this.Repaint();
+        }
+#endif
 
-		private TextPic textPic;
+        private static int columnWidth = 300;
 
-		public void Copy() {
-			#if UNITY_EDITOR
-			foreach(TextPic tp in textPicList) {
-				if (tp != null) {
-					tp.inspectorIconList = new TextPic.IconName[textPic.inspectorIconList.Length];
-					textPic.inspectorIconList.CopyTo(tp.inspectorIconList, 0);
+        private TextPic textPic;
 
-					tp.ResetIconList();
+        public void Copy()
+        {
+#if UNITY_EDITOR
+            foreach (TextPic tp in textPicList)
+            {
+                if (tp != null)
+                {
+                    tp.inspectorIconList = new TextPic.IconName[textPic.inspectorIconList.Length];
+                    textPic.inspectorIconList.CopyTo(tp.inspectorIconList, 0);
 
-					Debug.Log("Copied icons to " + tp.name);
-				}
-			}
-			#endif
-		}
+                    tp.ResetIconList();
 
-		public void OnGUI() {
-			GUILayout.Label("TextPic to copy icons", EditorStyles.boldLabel);
-			EditorGUILayout.Separator();
-			GUILayout.Label("TextPic", EditorStyles.boldLabel);
+                    Debug.Log("Copied icons to " + tp.name);
+                }
+            }
+#endif
+        }
 
-			EditorGUI.BeginChangeCheck();
+        public void OnGUI()
+        {
+            GUILayout.Label("TextPic to copy icons", EditorStyles.boldLabel);
+            EditorGUILayout.Separator();
+            GUILayout.Label("TextPic", EditorStyles.boldLabel);
 
-			textPic = EditorGUILayout.ObjectField(textPic, typeof(TextPic), true) as TextPic;
-			EditorGUI.EndChangeCheck();
+            EditorGUI.BeginChangeCheck();
 
-			if (textPicList.Count > 0) {
-				if ( textPicList.Count == 1 )
-				{
-					textPicList[0] = ((TextPic)EditorGUILayout.ObjectField(
-						textPicList[0],
-						typeof(TextPic),
-						true,
-						GUILayout.Width(columnWidth))
-						);
-				} 
-				else
-				{
-					GUILayout.Label("Multiple TextPic: " + textPicList.Count, GUILayout.Width(columnWidth));
-				}
+            textPic = EditorGUILayout.ObjectField(textPic, typeof(TextPic), true) as TextPic;
+            EditorGUI.EndChangeCheck();
 
-				if (textPic != null) {
+            if (textPicList.Count > 0)
+            {
+                if (textPicList.Count == 1)
+                {
+                    textPicList[0] = ((TextPic)EditorGUILayout.ObjectField(
+                        textPicList[0],
+                        typeof(TextPic),
+                        true,
+                        GUILayout.Width(columnWidth))
+                        );
+                }
+                else
+                {
+                    GUILayout.Label("Multiple TextPic: " + textPicList.Count, GUILayout.Width(columnWidth));
+                }
 
-					EditorGUILayout.BeginHorizontal();
-					if (GUILayout.Button("Copy Icons")) {
-						#if UNITY_EDITOR
-						Copy();
-						#endif
-					}
+                if (textPic != null)
+                {
 
-					EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.BeginHorizontal();
+                    if (GUILayout.Button("Copy Icons"))
+                    {
+#if UNITY_EDITOR
+                        Copy();
+#endif
+                    }
 
-					EditorGUILayout.Separator();
-				}
-			}
-			else {
-				GUILayout.Label("Please select objects that have a TextPic component", EditorStyles.boldLabel);
-			}
-		}
-	}
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.Separator();
+                }
+            }
+            else
+            {
+                GUILayout.Label("Please select objects that have a TextPic component", EditorStyles.boldLabel);
+            }
+        }
+    }
 
 }

@@ -53,7 +53,7 @@ namespace UnityEngine.UI.Extensions
         /// </summary>
         public void ResetPaginationChildren()
         {
-             // add selectables to list
+            // add selectables to list
             m_PaginationChildren = GetComponentsInChildren<Toggle>().ToList<Toggle>();
             for (int i = 0; i < m_PaginationChildren.Count; i++)
             {

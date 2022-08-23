@@ -101,7 +101,7 @@ namespace UnityEngine.UI.Extensions
                     for (int i = 0, length = _beginDragHandlers.Length; i < length; i++)
                     {
                         _beginDragHandlers[i].OnBeginDrag(eventData);
-                        if(ParentScrollSnap) ParentScrollSnap.OnBeginDrag(eventData);
+                        if (ParentScrollSnap) ParentScrollSnap.OnBeginDrag(eventData);
                     }
                 }
             }

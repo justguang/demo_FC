@@ -297,7 +297,7 @@ namespace UnityEngine.UI.Extensions
         {
             Rect spriteRect = sprite.rect;
             //if (type == Type.Simple || type == Type.Filled)
-                return new Vector2(local.x * rect.width, local.y * rect.height);
+            return new Vector2(local.x * rect.width, local.y * rect.height);
 
             //Vector4 border = sprite.border;
             //Vector4 adjustedBorder = GetAdjustedBorders(border / pixelsPerUnit, rect);
