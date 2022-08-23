@@ -26,11 +26,18 @@ public class PlayerUIInfo : MonoBehaviour
     public void Init(CampEnum camp, string username, long userUID, Sprite userFace)
     {
         this.m_Camp = camp;
-        this.username.text = username;
         this.userUID = userUID;
         this.userFaceSprite = userFace;
         this.isWinner = false;
 
+        if (username.Length > 5)
+        {
+            this.username.text = username.Substring(0, 5) + ".....";
+        }
+        else
+        {
+            this.username.text = username;
+        }
         gameObject.name = username;
 
         if (userFace == null)
@@ -42,6 +49,7 @@ public class PlayerUIInfo : MonoBehaviour
             face.sprite = userFace;
         }
 
+        transform.localScale = Vector3.one;
         EventSys.Instance.AddEvt(EventSys.ThrowDice, OnThrowDiceEvt);
         EventSys.Instance.AddEvt(EventSys.Winner, OnWinnerEvt);
     }

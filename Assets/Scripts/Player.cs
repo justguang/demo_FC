@@ -35,6 +35,7 @@ public class Player : MonoBehaviour
         this.m_Camp = camp;
         this.OverMoveCount = 0;
 
+        ReturnWaitPoint();
         gameObject.name = userName;
 
         bgImg.sprite = bgImg_Sprites[(int)camp];
@@ -46,8 +47,6 @@ public class Player : MonoBehaviour
         {
             face.sprite = userFace;
         }
-
-        ReturnWaitPoint();
 
         //init Event
         EventSys.Instance.AddEvt(EventSys.ThrowDice_OK, MoveByDice);
@@ -61,11 +60,6 @@ public class Player : MonoBehaviour
     /// </summary>
     void ReturnWaitPoint()
     {
-        Vector3 tmpPos = GameManager.Instance.WaitPoint[(int)m_Camp].position;
-        tmpPos.x += Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
-        tmpPos.y += Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
-        transform.position = tmpPos;
-
         this.MaxMoveCount = 50;
         this.IsEndPath = false;
         this.IsFly = false;
@@ -89,6 +83,10 @@ public class Player : MonoBehaviour
                 break;
         }
 
+        Vector3 tmpPos = GameManager.Instance.WaitPoint[(int)m_Camp].position;
+        tmpPos.x += Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
+        tmpPos.y += Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
+        transform.position = tmpPos;
     }
 
     /// <summary>
@@ -144,6 +142,9 @@ public class Player : MonoBehaviour
             }
             else
             {
+                //动态改变在Hierarchy中的UI顺序
+                transform.SetSiblingIndex(transform.parent.childCount - 1);
+
                 StartCoroutine(DoMoveOneToForward(dice));
             }
 
@@ -153,13 +154,15 @@ public class Player : MonoBehaviour
     IEnumerator DoMoveOneToForward(int moveNum)
     {
         bool isSitDown = false;
+        int endPathCount = GameManager.Instance.EndPath[(int)m_Camp].childCount;
+        int pathCount = GameManager.Instance.PathList.Count;
         for (int i = 0; i < moveNum; i++)
         {
             if (i == (moveNum - 1)) isSitDown = true;
-            MoveOneToForward(isSitDown);
+            MoveOneToForward(pathCount, isSitDown);
             yield return new WaitForSeconds(0.415f);
 
-            if (IsEndPath && PathIndex == GameManager.Instance.EndPath[(int)m_Camp].childCount)
+            if (IsEndPath && PathIndex == endPathCount)
             {
                 //winner
                 EventSys.Instance.CallEvt(EventSys.Winner, new object[] { m_Camp, UserUID });
@@ -172,7 +175,7 @@ public class Player : MonoBehaviour
     /// 移动一格
     /// </summary>
     /// <param name="isSitDown">false本次移动是路过</param>
-    void MoveOneToForward(bool isSitDown = true)
+    void MoveOneToForward(int pathCount, bool isSitDown = true)
     {
         OverMoveCount++;//步数+1
 
@@ -185,10 +188,10 @@ public class Player : MonoBehaviour
         else
         {
             stepAudio?.Play();
-            if (PathIndex == GameManager.Instance.PathList.Count) PathIndex = 0;//限定路径下标
+            if (PathIndex == pathCount) PathIndex = 0;//限定路径下标
             Node node = GameManager.Instance.PathList[PathIndex];//根据路径下标获取Node信息
             transform.position = node.pos;
-            
+
             if (isSitDown && node.isFly && node.camp == (int)m_Camp)
             {//达到自己可飞行领地
                 OverMoveCount += node.flyOver;
@@ -196,7 +199,7 @@ public class Player : MonoBehaviour
                 for (int i = 0; i < node.flyOver; i++)
                 {
                     PathIndex += 1;
-                    if (PathIndex == GameManager.Instance.PathList.Count) PathIndex = 0;//限定路径下标
+                    if (PathIndex == pathCount) PathIndex = 0;//限定路径下标
                 }
 
                 node = GameManager.Instance.PathList[PathIndex];//根据路径下标获取Node信息
