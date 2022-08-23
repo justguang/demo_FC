@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7892910971904379015}
   - component: {fileID: 7892910971904379009}
   - component: {fileID: 7892910971904379008}
+  - component: {fileID: 8747608593100558991}
   m_Layer: 5
   m_Name: face
   m_TagString: Untagged
@@ -33,10 +34,10 @@ RectTransform:
   m_Father: {fileID: 7892910972106784235}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7892910971904379009
 CanvasRenderer:
@@ -66,7 +67,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 37d89353fc88ac9449e8d8d4d882be29, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 82e4c4595b645c24abbbe7eafe93ab8f, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -76,6 +77,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8747608593100558991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7892910971904379014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 1, g: 0.05869154, b: 0, a: 0.78431374}
+  m_EffectDistance: {x: 1.5, y: 1.5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &7892910972106784234
 GameObject:
   m_ObjectHideFlags: 0
@@ -86,7 +102,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7892910972106784235}
   - component: {fileID: 7892910972106784229}
-  - component: {fileID: 7892910972106784228}
   - component: {fileID: 7892910972106784230}
   - component: {fileID: 7518566624039176914}
   m_Layer: 5
@@ -115,7 +130,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 60, y: 60}
+  m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7892910972106784229
 CanvasRenderer:
@@ -125,36 +140,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7892910972106784234}
   m_CullTransparentMesh: 1
---- !u!114 &7892910972106784228
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7892910972106784234}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 37d89353fc88ac9449e8d8d4d882be29, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!114 &7892910972106784230
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,18 +152,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89fe20e520cf71340a1e3cf2f396de78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bgImg: {fileID: 7892910972106784228}
   face: {fileID: 7892910971904379008}
-  bgImg_Sprites:
-  - {fileID: 21300000, guid: d4d2be3dcf5f9114398d614cfa856f15, type: 2}
-  - {fileID: 21300000, guid: 93b776d7544f1ef46be481646dec2219, type: 2}
-  - {fileID: 21300000, guid: 3114aee30e39ea04090c55a27eb7f38e, type: 2}
-  - {fileID: 21300000, guid: 016da601537a0df4ca1b46be43750a31, type: 2}
   defaultFace_Sprites:
-  - {fileID: 21300000, guid: cfb628853ae7e684e935809251fda458, type: 2}
-  - {fileID: 21300000, guid: 169996880ec77954e8265df874373806, type: 2}
-  - {fileID: 21300000, guid: c3ba5e6e26004414f925a081279e9738, type: 2}
-  - {fileID: 21300000, guid: aade7b26746db1e4f96a876d64a59cff, type: 2}
+  - {fileID: 21300000, guid: 69c518688c38c9448a138a50ae32403c, type: 2}
+  - {fileID: 21300000, guid: 25cba1178c8248940994098ab2b21c42, type: 2}
+  - {fileID: 21300000, guid: c805608284bfe8845b47b87b8a9f4fec, type: 2}
+  - {fileID: 21300000, guid: 4460f4d3480c0e44fac3821264bbcfe6, type: 2}
+  faceOutlineColor:
+  - {r: 1, g: 0.81960785, b: 0, a: 0.78431374}
+  - {r: 0, g: 0.47843137, b: 1, a: 0.78431374}
+  - {r: 0, g: 1, b: 0.3137255, a: 0.78431374}
+  - {r: 1, g: 0.05882353, b: 0, a: 0.78431374}
   stepAudio: {fileID: 7518566624039176914}
 --- !u!82 &7518566624039176914
 AudioSource:

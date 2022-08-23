@@ -4,10 +4,9 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private Image bgImg;//背景
     [SerializeField] private Image face;//头像UI组件
-    [SerializeField] private Sprite[] bgImg_Sprites;//头像背景
     [SerializeField] private Sprite[] defaultFace_Sprites;//默认头像
+    [SerializeField] private Color[] faceOutlineColor;//头像外边框
     [SerializeField] private AudioSource stepAudio;
 
     public CampEnum m_Camp { get; private set; }//所属阵营
@@ -38,7 +37,7 @@ public class Player : MonoBehaviour
         ReturnWaitPoint();
         gameObject.name = userName;
 
-        bgImg.sprite = bgImg_Sprites[(int)camp];
+        face.transform.GetComponent<Outline>().effectColor = faceOutlineColor[(int)camp];
         if (userFace == null)
         {
             face.sprite = defaultFace_Sprites[(int)camp];
@@ -47,6 +46,7 @@ public class Player : MonoBehaviour
         {
             face.sprite = userFace;
         }
+
 
         //init Event
         EventSys.Instance.AddEvt(EventSys.ThrowDice_OK, MoveByDice);

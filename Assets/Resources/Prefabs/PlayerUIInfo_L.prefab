@@ -302,10 +302,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   face: {fileID: 8589364577710545856}
   defaultFace:
-  - {fileID: 21300000, guid: cfb628853ae7e684e935809251fda458, type: 2}
-  - {fileID: 21300000, guid: 169996880ec77954e8265df874373806, type: 2}
-  - {fileID: 21300000, guid: c3ba5e6e26004414f925a081279e9738, type: 2}
-  - {fileID: 21300000, guid: aade7b26746db1e4f96a876d64a59cff, type: 2}
+  - {fileID: 21300000, guid: 69c518688c38c9448a138a50ae32403c, type: 2}
+  - {fileID: 21300000, guid: 25cba1178c8248940994098ab2b21c42, type: 2}
+  - {fileID: 21300000, guid: c805608284bfe8845b47b87b8a9f4fec, type: 2}
+  - {fileID: 21300000, guid: 4460f4d3480c0e44fac3821264bbcfe6, type: 2}
   username: {fileID: 8589364577737723598}
   diceAudio: {fileID: 827890413141498195}
   dice: {fileID: 8589364578880338651}
