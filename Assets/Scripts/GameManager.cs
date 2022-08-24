@@ -377,6 +377,7 @@ public class GameManager : MonoBehaviour
     //执行掷骰子事件
     bool isStartThrowDice = false;
     float throwTime = 2.0f;
+    float waitThrowTime = 2.0f;
     int campThrow = (int)CampEnum.Red;
     void ThrowDice_CallEvt()
     {
@@ -401,7 +402,7 @@ public class GameManager : MonoBehaviour
         if (isStartThrowDice)
         {
             throwTime += Time.deltaTime;
-            if (throwTime >= 3.8f)
+            if (throwTime >= waitThrowTime)
             {
                 throwTime = 0.0f;
                 ThrowDice_CallEvt();
