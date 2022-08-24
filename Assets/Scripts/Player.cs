@@ -174,10 +174,9 @@ public class Player : MonoBehaviour
 
             if (isHit)
             {
+                StartCoroutine(DoScale());
                 audioSource.clip = audioClip[3];
                 audioSource.Play();
-
-                StartCoroutine(DoScale());
 
                 ReturnWaitPoint();
             }
@@ -236,10 +235,9 @@ public class Player : MonoBehaviour
                 if (PathIndex == (endPathCount - 1))
                 {
                     //µΩ¥Ô÷’µ„
+                    StartCoroutine(DoScale());
                     audioSource.clip = audioClip[1];
                     audioSource.Play();
-
-                    StartCoroutine(DoScale());
 
                     //winner
                     EventSys.Instance.CallEvt(EventSys.Winner, new object[] { m_Camp, UserUID });
@@ -299,18 +297,18 @@ public class Player : MonoBehaviour
         Vector3 scale = transform.localScale;
         while (scale.x < 1.5)
         {
-            scale.x += Time.deltaTime;
-            scale.y += Time.deltaTime;
+            scale.x += 0.01f;
+            scale.y += 0.01f;
             transform.localScale = scale;
-            yield return new WaitForSeconds(0.1f);
+            yield return null;
         }
 
         while (scale.x > 1)
         {
-            scale.x -= Time.deltaTime;
-            scale.y -= Time.deltaTime;
+            scale.x -= 0.01f;
+            scale.y -= 0.01f;
             transform.localScale = scale;
-            yield return new WaitForSeconds(0.1f);
+            yield return null;
         }
         yield return null;
     }
