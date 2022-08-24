@@ -163,10 +163,12 @@ MonoBehaviour:
   - {r: 0, g: 0.47843137, b: 1, a: 0.78431374}
   - {r: 0, g: 1, b: 0.3137255, a: 0.78431374}
   - {r: 1, g: 0.05882353, b: 0, a: 0.78431374}
-  audioSource: {fileID: 0}
+  audioSource: {fileID: 7518566624039176914}
   audioClip:
   - {fileID: 8300000, guid: 7c4c406b8e3f84d47be9b509419355f9, type: 3}
   - {fileID: 8300000, guid: a49dce35cf4b8fb4bb3728a4cb11f24e, type: 3}
+  - {fileID: 8300000, guid: db0d51252638b4343ad79e625a1be6d9, type: 3}
+  - {fileID: 8300000, guid: c1a268b989c9c014bb055a6515cd0afa, type: 3}
 --- !u!82 &7518566624039176914
 AudioSource:
   m_ObjectHideFlags: 0

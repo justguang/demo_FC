@@ -265,7 +265,7 @@ public class GameManager : MonoBehaviour
         long userUID = (long)result[1];
 
 
-        //清楚信息
+        //清除信息
         if (playerDic.ContainsKey((int)camp))
         {
             if (playerDic[(int)camp].TryGetValue(userUID, out Player player))
@@ -376,8 +376,7 @@ public class GameManager : MonoBehaviour
 
     //执行掷骰子事件
     bool isStartThrowDice = false;
-    float throwTime = 2.0f;
-    float waitThrowTime = 2.0f;
+    float throwTime = Config.ThrowDiceWaitTime;
     int campThrow = (int)CampEnum.Red;
     void ThrowDice_CallEvt()
     {
@@ -392,7 +391,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Application.targetFrameRate = 60;
+        Application.targetFrameRate = Config.FrameRate;
         Init();
     }
 
@@ -402,7 +401,7 @@ public class GameManager : MonoBehaviour
         if (isStartThrowDice)
         {
             throwTime += Time.deltaTime;
-            if (throwTime >= waitThrowTime)
+            if (throwTime >= Config.ThrowDiceWaitTime)
             {
                 throwTime = 0.0f;
                 ThrowDice_CallEvt();

@@ -2,11 +2,18 @@
 
 public static class Config
 {
-    //offset
+    //帧率锁定
+    public const int FrameRate = 60;
+    //等待区位置偏移
     public const float OffsetWaitPos = 65f;
     //每个阵营最多人数限制
     public const int MaxPlayer = 4;
-
+    //正常走环形路径步数
+    public const int MaxMoveCount = 50;
+    //每步之间的时间间隔【单位秒】
+    public const float MoveWaitTime = 0.45f;
+    //每次掷骰子时间间隔【单位秒】
+    public const float ThrowDiceWaitTime = 4.0f;
 
     #region 弹幕命令
     public const string Join_Yellow = "加入黄";

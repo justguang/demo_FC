@@ -62,7 +62,7 @@ public class Player : MonoBehaviour
     /// </summary>
     void ReturnWaitPoint()
     {
-        this.MaxMoveCount = 50;
+        this.MaxMoveCount = Config.MaxMoveCount;
         this.IsEndPath = false;
         this.IsFly = false;
 
@@ -127,8 +127,14 @@ public class Player : MonoBehaviour
         {
             CampEnum camp = (CampEnum)((object[])obj)[1];
             int pathIdx = (int)((object[])obj)[2];
-            if (!camp.Equals(m_Camp) && pathIdx == PathIndex)
+
+            if (!IsEndPath && !camp.Equals(m_Camp)
+                && pathIdx == PathIndex
+                && MaxMoveCount < Config.MaxMoveCount)
             {
+                audioSource.clip = audioClip[3];
+                audioSource.Play();
+
                 //被敌方飞机撞回
                 ReturnWaitPoint();
             }
@@ -144,23 +150,35 @@ public class Player : MonoBehaviour
     {
         if (IsFly && IsEndPath && PathIndex == 2)
         {
+            bool isHit = false;
             CampEnum otherCamp = (CampEnum)obj;
             switch (m_Camp)
             {
                 case CampEnum.Yellow:
-                    if (otherCamp.Equals(CampEnum.Green)) ReturnWaitPoint();
+                    if (otherCamp.Equals(CampEnum.Green)) isHit = true;
                     break;
                 case CampEnum.Blue:
-                    if (otherCamp.Equals(CampEnum.Red)) ReturnWaitPoint();
+                    if (otherCamp.Equals(CampEnum.Red)) isHit = true;
                     break;
                 case CampEnum.Green:
-                    if (otherCamp.Equals(CampEnum.Yellow)) ReturnWaitPoint();
+                    if (otherCamp.Equals(CampEnum.Yellow)) isHit = true;
                     break;
                 case CampEnum.Red:
-                    if (otherCamp.Equals(CampEnum.Blue)) ReturnWaitPoint();
+                    if (otherCamp.Equals(CampEnum.Blue)) isHit = true;
                     break;
                 default:
                     break;
+            }
+
+
+            if (isHit)
+            {
+                audioSource.clip = audioClip[3];
+                audioSource.Play();
+
+                StartCoroutine(DoScale());
+
+                ReturnWaitPoint();
             }
 
         }
@@ -178,38 +196,50 @@ public class Player : MonoBehaviour
         if (param[0] == UserUID)
         {
             int dice = (int)param[1] + 1;
-            if (!IsFly && (dice == 1 || dice == 6))
+            if (!IsFly)
             {
-                //起飞
-                IsFly = true;
-                Vector3 pos = GameManager.Instance.StartPoint[(int)m_Camp].position;
-                transform.position = pos;
+                if (dice == 1 || dice == 6)
+                {
+                    audioSource.clip = audioClip[2];
+                    audioSource.Play();
+
+                    //起飞
+                    IsFly = true;
+                    Vector3 pos = GameManager.Instance.StartPoint[(int)m_Camp].position;
+                    transform.position = pos;
+                }
             }
             else
             {
                 //动态改变在Hierarchy中的UI顺序
                 transform.SetSiblingIndex(transform.parent.childCount - 1);
 
-                StartCoroutine(DoMoveOneToForward(dice));
+                StartCoroutine(DoMoveToForward(dice));
             }
 
         }
     }
 
 
-    IEnumerator DoMoveOneToForward(int moveNum)
+    IEnumerator DoMoveToForward(int moveNum)
     {
         int endPathCount = GameManager.Instance.EndPath[(int)m_Camp].childCount;
         int pathCount = GameManager.Instance.PathList.Count;
         for (int i = 0; i < moveNum; i++)
         {
             MoveOneToForward(pathCount);
-            yield return new WaitForSeconds(0.42f);
+            yield return new WaitForSeconds(Config.MoveWaitTime);
 
             if (IsEndPath)
             {
                 if (PathIndex == (endPathCount - 1))
                 {
+                    //到达终点
+                    audioSource.clip = audioClip[1];
+                    audioSource.Play();
+
+                    StartCoroutine(DoScale());
+
                     //winner
                     EventSys.Instance.CallEvt(EventSys.Winner, new object[] { m_Camp, UserUID });
                     break;
@@ -260,6 +290,26 @@ public class Player : MonoBehaviour
             transform.position = node.pos;
         }
 
+    }
+
+    //缩放
+    IEnumerator DoScale()
+    {
+        Vector3 scale = transform.localScale;
+        while (scale.x < 1.5)
+        {
+            scale.x += Time.deltaTime;
+            scale.y += Time.deltaTime;
+            transform.localScale = scale;
+        }
+
+        while (scale.x > 1)
+        {
+            scale.x -= Time.deltaTime;
+            scale.y -= Time.deltaTime;
+            transform.localScale = scale;
+        }
+        yield return null;
     }
 
 
