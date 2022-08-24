@@ -257,7 +257,11 @@ public class GameManager : MonoBehaviour
         ConnectViaCode.Instance?.LinkEnd();
     }
 
-    //有玩家到达终点
+
+    /// <summary>
+    /// 有玩家到达终点
+    /// </summary>
+    /// <param name="obj">[0]=>玩家阵营，[1]=>玩家UID</param>
     void OnWinnerEvt(object obj)
     {
         object[] result = (object[])obj;

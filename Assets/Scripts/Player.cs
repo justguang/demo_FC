@@ -146,6 +146,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// 飞行意外撞机事件
     /// </summary>
+    /// <param name="obj">飞行者所属阵营</param>
     void OnFlyToHitEvt(object obj)
     {
         if (IsFly && IsEndPath && PathIndex == 2)
@@ -188,7 +189,7 @@ public class Player : MonoBehaviour
     /// <summary>
     /// 向目标移动一个单位格
     /// </summary>
-    /// <param name="obj">[0]=>userUID, [1]=>dice</param>
+    /// <param name="obj">[0]=>userUID, [1]=>骰子点数</param>
     void MoveByDice(object obj)
     {
         long[] param = (long[])obj;
@@ -301,6 +302,7 @@ public class Player : MonoBehaviour
             scale.x += Time.deltaTime;
             scale.y += Time.deltaTime;
             transform.localScale = scale;
+            yield return new WaitForSeconds(0.1f);
         }
 
         while (scale.x > 1)
@@ -308,6 +310,7 @@ public class Player : MonoBehaviour
             scale.x -= Time.deltaTime;
             scale.y -= Time.deltaTime;
             transform.localScale = scale;
+            yield return new WaitForSeconds(0.1f);
         }
         yield return null;
     }

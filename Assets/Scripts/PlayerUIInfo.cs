@@ -46,7 +46,7 @@ public class PlayerUIInfo : MonoBehaviour
         }
         else
         {
-            face.sprite = userFace;
+            face.sprite = userFaceSprite;
         }
 
         transform.localScale = Vector3.one;
@@ -57,7 +57,7 @@ public class PlayerUIInfo : MonoBehaviour
     /// <summary>
     /// 到达终点事件
     /// </summary>
-    /// <param name="obj"></param>
+    /// <param name="obj">【0】到达终点者所属阵营，【1】到达终点者UID</param>
     void OnWinnerEvt(object obj)
     {
         object[] result = (object[])obj;
@@ -70,7 +70,7 @@ public class PlayerUIInfo : MonoBehaviour
     /// <summary>
     /// 掷骰子事件触发
     /// </summary>
-    /// <param name="obj"></param>
+    /// <param name="obj">阵营</param>
     void OnThrowDiceEvt(object obj)
     {
         int tmpCamp = (int)obj;
