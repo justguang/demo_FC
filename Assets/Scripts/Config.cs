@@ -11,9 +11,9 @@ public static class Config
     //正常走环形路径步数
     public const int MaxMoveCount = 50;
     //每步之间的时间间隔【单位秒】
-    public const float MoveWaitTime = 0.45f;
+    public const float MoveWaitTime = 0.5f;
     //每次掷骰子时间间隔【单位秒】
-    public const float ThrowDiceWaitTime = 4.0f;
+    public const float ThrowDiceWaitTime = 6.0f;
 
     #region 弹幕命令
     public const string Join_Yellow = "加入黄";
