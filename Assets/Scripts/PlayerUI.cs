@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 显示在UI上的玩家信息
+/// </summary>
 public class PlayerUI : MonoBehaviour
 {
     [SerializeField] private Image face_img;

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
+/// <summary>
+/// 事件系统
+/// </summary>
 public class EventSys
 {
     static EventSys _ins;
@@ -49,10 +52,6 @@ public class EventSys
             evtDic[evtCode]?.Invoke(param);
         }
     }
-
-
-
-
 
 
 

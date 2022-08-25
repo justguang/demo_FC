@@ -2,6 +2,9 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 玩家【棋子】
+/// </summary>
 public class Player : MonoBehaviour
 {
     [SerializeField] private Image face;//头像UI组件

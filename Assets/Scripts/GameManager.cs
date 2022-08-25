@@ -519,6 +519,7 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
+
     //执行掷骰子事件
     bool isStartThrowDice = false;
     float throwTime = Config.ThrowDiceWaitTime;

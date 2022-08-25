@@ -4,6 +4,9 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Íæ¼ÒÖÀ÷»×ÓÃæ°å
+/// </summary>
 public class PlayerThrowDice : MonoBehaviour
 {
     [SerializeField] private Image face_img;
