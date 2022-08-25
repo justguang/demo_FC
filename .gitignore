@@ -2,16 +2,31 @@
 # 此 .gitignore 文件已由 Microsoft(R) Visual Studio 自动创建。
 ################################################################################
 
-*.sln
-*.csproj
-*.vsconfig
-*.user
-*.cache
-*.meta
-/.vs
+
+
 /Library
 /Temp
 /obj
 /bin
 /Build
 /Logs
+
+
+# Visual Studio cache directory
+.vs/
+
+# Gradle cache directory
+.gradle/
+
+# Unity3D generated meta files
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# Unity3D generated file on crash reports
+sysinfo.txt
+
+# Builds
+*.apk
+*.unitypackage
+
