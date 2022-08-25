@@ -31,22 +31,15 @@ public class Player : MonoBehaviour
     {
         this.UserUID = userUID;
         this.UserName = userName;
-        this.UserFaceSprite = userFace;
         this.m_Camp = camp;
         this.OverMoveCount = 0;
 
         ReturnWaitPoint();
-        gameObject.name = userName;
 
         face.transform.GetComponent<Outline>().effectColor = faceOutlineColor[(int)camp];
-        if (userFace == null)
-        {
-            face.sprite = defaultFace_Sprites[(int)camp];
-        }
-        else
-        {
-            face.sprite = userFace;
-        }
+        if (userFace == null) userFace = defaultFace_Sprites[(int)camp];
+        face.sprite = userFace;
+        this.UserFaceSprite = userFace;
 
 
         //init Event
@@ -186,16 +179,16 @@ public class Player : MonoBehaviour
 
 
     /// <summary>
-    /// 向目标移动一个单位格
+    /// 掷骰子结束事件
     /// </summary>
-    /// <param name="obj">[0]=>userUID, [1]=>骰子点数</param>
+    /// <param name="obj">【0】阵营，【1】userUID，【2】骰子点数</param>
     void MoveByDice(object obj)
     {
-        long[] param = (long[])obj;
+        object[] param = (object[])obj;
 
-        if (param[0] == UserUID)
+        if ((long)param[1] == UserUID)
         {
-            int dice = (int)param[1] + 1;
+            int dice = (int)param[2] + 1;
             if (!IsFly)
             {
                 if (dice == 1 || dice == 6)
@@ -223,6 +216,8 @@ public class Player : MonoBehaviour
 
     IEnumerator DoMoveToForward(int moveNum)
     {
+        yield return new WaitForSeconds(1f);
+
         int endPathCount = GameManager.Instance.EndPath[(int)m_Camp].childCount;
         int pathCount = GameManager.Instance.PathList.Count;
         for (int i = 0; i < moveNum; i++)

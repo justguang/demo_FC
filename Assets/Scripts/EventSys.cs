@@ -59,6 +59,7 @@ public class EventSys
 
     #region Event Code
     public static readonly string test = "test";
+
     public static readonly string ThrowDice = "掷骰子";
     public static readonly string ThrowDice_OK = "掷骰子结束";
 

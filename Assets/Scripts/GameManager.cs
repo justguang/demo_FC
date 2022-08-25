@@ -1,6 +1,10 @@
 using OpenBLive.Runtime.Data;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Networking;
 using Random = UnityEngine.Random;
@@ -16,8 +20,15 @@ public class GameManager : MonoBehaviour
     public Transform[] WaitPoint;
     [Header("起飞区根节点")]
     public Transform[] StartPoint;
-    [Header("Player UI info 信息显示根节点")]
-    public Transform[] PlayerUIInfoRoot;
+    [Header("Player UI 信息显示根节点")]
+    public Transform PlayerUILayoutGroup;
+    [Header("排行信息")]
+    public Transform TimeRankLayoutGroup;
+
+    [Header("掷骰子面板")]
+    public Transform[] PlayerThrowDicePanel;
+    [Header("掷骰子动画")]
+    public Animator[] PlayerThrowDiceAni;
 
     [Header("环形路径根节点")]
     public Transform PathRoot;
@@ -26,10 +37,12 @@ public class GameManager : MonoBehaviour
     [Header("终段路径根节点")]
     public Transform[] EndPath;
 
+
     [Header("Player Prefab")]
-    public GameObject PlayerPrefab;
-    public GameObject PlayerUIInfo_L_Prefab;
-    public GameObject PlayerUIInfo_R_Prefab;
+    public GameObject Player_Prefab;
+    public GameObject PlayerUI_Prefab;
+    public GameObject PlayerThrowDice_Prefab;
+    public GameObject PlayerTimeRankInfo_Prefab;
 
     [Space(10)]
 
@@ -41,7 +54,10 @@ public class GameManager : MonoBehaviour
 
     //所有Player【key => 阵营 =>  value<userUID,Player>】
     private Dictionary<int, Dictionary<long, Player>> playerDic;
-    private Dictionary<int, Dictionary<long, PlayerUIInfo>> playerUiInfoDic;
+    private Dictionary<int, Dictionary<long, PlayerUI>> playerUIDic;
+    private Dictionary<int, Dictionary<long, PlayerThrowDice>> playerThrowDiceDic;
+    //player排行信息
+    private List<PlayerTimeRankInfo> playerTimeRankList;
 
     public void Init()
     {
@@ -62,7 +78,7 @@ public class GameManager : MonoBehaviour
             loginMgr?.LinkSuccessEvent.AddListener(OnLinkSuccessEvt);
         }
 
-        //init Dictionary
+        //init Collections
         {
             playerDic = new Dictionary<int, Dictionary<long, Player>>();
             playerDic.Add((int)CampEnum.Yellow, new Dictionary<long, Player>());
@@ -70,11 +86,19 @@ public class GameManager : MonoBehaviour
             playerDic.Add((int)CampEnum.Green, new Dictionary<long, Player>());
             playerDic.Add((int)CampEnum.Red, new Dictionary<long, Player>());
 
-            playerUiInfoDic = new Dictionary<int, Dictionary<long, PlayerUIInfo>>();
-            playerUiInfoDic.Add((int)CampEnum.Yellow, new Dictionary<long, PlayerUIInfo>());
-            playerUiInfoDic.Add((int)CampEnum.Blue, new Dictionary<long, PlayerUIInfo>());
-            playerUiInfoDic.Add((int)CampEnum.Green, new Dictionary<long, PlayerUIInfo>());
-            playerUiInfoDic.Add((int)CampEnum.Red, new Dictionary<long, PlayerUIInfo>());
+            playerUIDic = new Dictionary<int, Dictionary<long, PlayerUI>>();
+            playerUIDic.Add((int)CampEnum.Yellow, new Dictionary<long, PlayerUI>());
+            playerUIDic.Add((int)CampEnum.Blue, new Dictionary<long, PlayerUI>());
+            playerUIDic.Add((int)CampEnum.Green, new Dictionary<long, PlayerUI>());
+            playerUIDic.Add((int)CampEnum.Red, new Dictionary<long, PlayerUI>());
+
+            playerThrowDiceDic = new Dictionary<int, Dictionary<long, PlayerThrowDice>>();
+            playerThrowDiceDic.Add((int)CampEnum.Yellow, new Dictionary<long, PlayerThrowDice>());
+            playerThrowDiceDic.Add((int)CampEnum.Blue, new Dictionary<long, PlayerThrowDice>());
+            playerThrowDiceDic.Add((int)CampEnum.Green, new Dictionary<long, PlayerThrowDice>());
+            playerThrowDiceDic.Add((int)CampEnum.Red, new Dictionary<long, PlayerThrowDice>());
+
+            playerTimeRankList = new List<PlayerTimeRankInfo>();
         }
 
         //init danmaku event
@@ -85,8 +109,10 @@ public class GameManager : MonoBehaviour
             ConnectViaCode.Instance.OnSuperChat += OnSuperChat;
         }
 
+
         //init EventSys
         {
+            EventSys.Instance.AddEvt(EventSys.ThrowDice_OK, OnThrowDice_OKEvt);
             EventSys.Instance.AddEvt(EventSys.Winner, OnWinnerEvt);
         }
 
@@ -197,35 +223,6 @@ public class GameManager : MonoBehaviour
     #endregion
 
 
-    //加载Player
-    IEnumerator DoLoadPlayer(CampEnum camp, long userUID, string userName, string userFace)
-    {
-
-        Texture2D loadTexture = null;
-        Sprite loadFace = null;
-        using (UnityWebRequest webReq = new UnityWebRequest())
-        {
-            webReq.url = userFace;
-            webReq.method = UnityWebRequest.kHttpVerbGET;
-            webReq.downloadHandler = new DownloadHandlerTexture();
-            yield return webReq.SendWebRequest();
-            if (webReq.result == UnityWebRequest.Result.Success)
-            {
-                loadTexture = DownloadHandlerTexture.GetContent(webReq);
-                loadFace = Sprite.Create(loadTexture, new Rect(0, 0, loadTexture.width, loadTexture.height), new Vector2(0.5f, 0.5f));
-            }
-            else
-            {
-                //error
-                loadTexture = null;
-                loadFace = null;
-            }
-        }
-
-
-        LoadPlayer(camp, userUID, userName, loadFace);
-    }
-
     void OnLinkSuccessEvt()
     {
         LoginPanel.gameObject.SetActive(false);
@@ -257,6 +254,16 @@ public class GameManager : MonoBehaviour
         ConnectViaCode.Instance?.LinkEnd();
     }
 
+    #region EventSys Callback
+    /// <summary>
+    /// 掷骰子结束事件
+    /// </summary>
+    /// <param name="obj">【0】阵营，【1】userUID，【2】骰子点数</param>
+    void OnThrowDice_OKEvt(object obj)
+    {
+        CampEnum camp = (CampEnum)((object[])obj)[0];
+        PlayerThrowDiceAni[(int)camp]?.Play("Hide");
+    }
 
     /// <summary>
     /// 有玩家到达终点
@@ -268,33 +275,151 @@ public class GameManager : MonoBehaviour
         CampEnum camp = (CampEnum)result[0];
         long userUID = (long)result[1];
 
+        Player player = null;
+        PlayerUI playerUI = null;
+        PlayerThrowDice playerTD = null;
 
-        //清除信息
+        //清除player信息
         if (playerDic.ContainsKey((int)camp))
         {
-            if (playerDic[(int)camp].TryGetValue(userUID, out Player player))
+            if (playerDic[(int)camp].TryGetValue(userUID, out player))
             {
                 playerDic[(int)camp].Remove(userUID);
-                Destroy(player.gameObject);
-
             }
         }
-
-        if (playerUiInfoDic.ContainsKey((int)camp))
+        //清除playerUI信息
+        if (playerUIDic.ContainsKey((int)camp))
         {
-            if (playerUiInfoDic[(int)camp].TryGetValue(userUID, out PlayerUIInfo playerUIInfo))
+            if (playerUIDic[(int)camp].TryGetValue(userUID, out playerUI))
             {
-                playerUiInfoDic[(int)camp].Remove(userUID);
-                Destroy(playerUIInfo.gameObject);
+                playerUIDic[(int)camp].Remove(userUID);
+            }
+        }
+        //清除PlayerThrowDice
+        if (playerThrowDiceDic.ContainsKey((int)camp))
+        {
+            if (playerThrowDiceDic[(int)camp].TryGetValue(userUID, out playerTD))
+            {
+                playerThrowDiceDic[(int)camp].Remove(userUID);
             }
         }
 
+        //destory gameObject
+        if (player != null) Destroy(player.gameObject);
+        if (playerTD != null) Destroy(playerTD.gameObject);
+        if (playerUI != null)
+        {
+            //计算通关用时
+            float endTime = Time.realtimeSinceStartup;
+            float useTime = endTime - playerUI.StartTime;
 
+            //计算刷新排行信息
+            CalcTimeRank(camp, playerUI.UserName, playerUI.UserUID, useTime, playerUI.UserFace);
+
+            Destroy(playerUI.gameObject);
+        }
+
+        //如果该阵营人数=0，随机生成人机加入
         if (playerDic[(int)camp].Count == 0)
         {
             int random = Random.Range(111, 1000);
             LoadPlayer(camp, random, random.ToString(), null);
         }
+    }
+    #endregion
+
+    //计算排行信息
+    void CalcTimeRank(CampEnum camp, string userName, long userUID, float useTime, Sprite userFace)
+    {
+        PlayerTimeRankInfo playerTRI = null;
+        if (playerTimeRankList.Count == 0)
+        {
+            playerTRI = LoadPlayerTimeRankInfo(camp, userName, userUID, useTime, userFace);
+            playerTimeRankList.Add(playerTRI);
+        }
+        else
+        {
+            //playerTRI 不为空 =》 历史在榜
+            playerTRI = playerTimeRankList.Find(p =>
+            {
+                if (p.userUID == userUID)
+                {
+                    return p;
+                }
+                return false;
+            });
+
+            if (playerTRI != null)
+            {
+                playerTimeRankList.Remove(playerTRI);
+                playerTRI.UpdateUseTime(useTime);
+            }
+
+
+            int rankIndex = -1;
+            PlayerTimeRankInfo tmp = null;
+            for (int i = 0; i < playerTimeRankList.Count; i++)
+            {
+                tmp = playerTimeRankList[i];
+                if (tmp.UserTime > useTime)
+                {
+                    rankIndex = i;
+                    break;
+                }
+            }
+
+            if (rankIndex != -1)
+            {
+                //上榜
+                if (playerTRI == null) playerTRI = LoadPlayerTimeRankInfo(camp, userName, userUID, useTime, userFace);
+                playerTimeRankList.Insert(rankIndex, playerTRI);
+                for (int i = 3; i < playerTimeRankList.Count; i++)
+                {
+                    PlayerTimeRankInfo destoryP = playerTimeRankList[i];
+                    Destroy(destoryP.gameObject);
+                }
+            }
+            else
+            {
+                if (playerTimeRankList.Count < 4)
+                {
+                    playerTRI = LoadPlayerTimeRankInfo(camp, userName, userUID, useTime, userFace);
+                    playerTimeRankList.Add(playerTRI);
+                }
+            }
+
+        }
+
+    }
+
+    #region Load Prefab
+    //加载Player
+    IEnumerator DoLoadPlayer(CampEnum camp, long userUID, string userName, string userFace)
+    {
+
+        Texture2D loadTexture = null;
+        Sprite loadFace = null;
+        using (UnityWebRequest webReq = new UnityWebRequest())
+        {
+            //加载头像
+            webReq.url = userFace;
+            webReq.method = UnityWebRequest.kHttpVerbGET;
+            webReq.downloadHandler = new DownloadHandlerTexture();
+            yield return webReq.SendWebRequest();
+            if (webReq.result == UnityWebRequest.Result.Success)
+            {
+                loadTexture = DownloadHandlerTexture.GetContent(webReq);
+                loadFace = Sprite.Create(loadTexture, new Rect(0, 0, loadTexture.width, loadTexture.height), new Vector2(0.5f, 0.5f));
+            }
+            else
+            {
+                //error
+                loadTexture = null;
+                loadFace = null;
+            }
+        }
+
+        LoadPlayer(camp, userUID, userName, loadFace);
     }
 
     //实例化Player prefab
@@ -306,26 +431,28 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        Dictionary<long, Player> tmpPDic = playerDic[(int)camp];
-        Dictionary<long, PlayerUIInfo> tmpPUIDic = playerUiInfoDic[(int)camp];
-        if (!tmpPDic.ContainsKey(userUID))
+        if (!playerDic[(int)camp].ContainsKey(userUID))
         {
-            GameObject obj = Instantiate<GameObject>(PlayerPrefab);
+            GameObject obj = Instantiate<GameObject>(Player_Prefab);
+            obj.name = userName;
             obj.transform.SetParent(PlayerRoot);
+            obj.transform.localScale = Vector3.one;
             Player player = obj.GetComponent<Player>();
 
             player.Init(userUID, userName, userFace, camp);
-            PlayerUIInfo playerUIInfo = LoadPlayerUIIngo(camp, userName, userUID, userFace, out GameObject objUI);
-            if (playerUIInfo != null)
+            PlayerUI playerUI = LoadPlayerUI(camp, userName, userUID, userFace, out GameObject playerUIObj);
+            PlayerThrowDice playerTD = LoadPlayerThrowDice(camp, userName, userUID, userFace, out GameObject playerTDObj);
+            if (playerUI != null && playerTD != null)
             {
-                tmpPDic.Add(userUID, player);
-                tmpPUIDic.Add(userUID, playerUIInfo);
-
+                playerDic[(int)camp].Add(userUID, player);
+                playerUIDic[(int)camp].Add(userUID, playerUI);
+                playerThrowDiceDic[(int)camp].Add(userUID, playerTD);
             }
             else
             {
                 Destroy(obj);
-                Destroy(objUI);
+                Destroy(playerUIObj);
+                Destroy(playerTDObj);
                 Debug.LogWarning($"玩家[{userName}] 加入阵营失败，请稍后重试");
             }
 
@@ -337,35 +464,49 @@ public class GameManager : MonoBehaviour
     }
 
     //实例化Player UI Info Prefab
-    PlayerUIInfo LoadPlayerUIIngo(CampEnum camp, string username, long userUID, Sprite userface, out GameObject obj)
+    PlayerUI LoadPlayerUI(CampEnum camp, string userName, long userUID, Sprite userface, out GameObject obj)
     {
-        PlayerUIInfo playerUIInfo = null;
-        Transform parent = null;
-        switch (camp)
-        {
-            case CampEnum.Yellow:
-            case CampEnum.Red:
-                obj = GameObject.Instantiate<GameObject>(PlayerUIInfo_L_Prefab);
-                playerUIInfo = obj.GetComponent<PlayerUIInfo>();
-                parent = PlayerUIInfoRoot[(int)camp];
-                if (parent != null) obj.transform.SetParent(parent);
-                playerUIInfo?.Init(camp, username, userUID, userface);
-                return playerUIInfo;
-            case CampEnum.Blue:
-            case CampEnum.Green:
-                obj = GameObject.Instantiate<GameObject>(PlayerUIInfo_R_Prefab);
-                playerUIInfo = obj.GetComponent<PlayerUIInfo>();
-                parent = PlayerUIInfoRoot[(int)camp];
-                if (parent != null) obj.transform.SetParent(parent);
-                playerUIInfo?.Init(camp, username, userUID, userface);
-                return playerUIInfo;
-            default:
-                obj = null;
-                return null;
-        }
+        PlayerUI playerUI = null;
+        obj = null;
+
+        obj = GameObject.Instantiate<GameObject>(PlayerUI_Prefab);
+        obj.name = userName;
+        playerUI = obj.GetComponent<PlayerUI>();
+        obj.transform.SetParent(PlayerUILayoutGroup);
+        obj.transform.localScale = Vector3.one;
+        playerUI?.Init(camp, userName, userUID, userface);
+        return playerUI;
+
     }
 
+    //实例化PlayerThrowDice Prefab
+    PlayerThrowDice LoadPlayerThrowDice(CampEnum camp, string userName, long userUID, Sprite userFace, out GameObject obj)
+    {
+        PlayerThrowDice playerThrowDice = null;
+        obj = null;
+        obj = GameObject.Instantiate<GameObject>(PlayerThrowDice_Prefab);
+        obj.name = userName;
+        playerThrowDice = obj.GetComponent<PlayerThrowDice>();
+        obj.transform.SetParent(PlayerThrowDicePanel[(int)camp]);
+        obj.transform.localScale = Vector3.one;
+        playerThrowDice?.Init(camp, userName, userUID, userFace);
+        return playerThrowDice;
+    }
 
+    //实例化PlayerTimeRankInfo
+    PlayerTimeRankInfo LoadPlayerTimeRankInfo(CampEnum camp, string userName, long userUID, float useTime, Sprite userFace)
+    {
+        GameObject obj = GameObject.Instantiate(PlayerTimeRankInfo_Prefab);
+        obj.name = userName;
+        PlayerTimeRankInfo playerTRI = obj.GetComponent<PlayerTimeRankInfo>();
+        obj.transform.SetParent(TimeRankLayoutGroup);
+        obj.transform.localScale = Vector3.one;
+        playerTRI.Init(camp, userName, userUID, useTime, userFace);
+        return playerTRI;
+    }
+    #endregion
+
+    //检查指定UID是否存在
     bool IsExistPlayer(long userUID)
     {
         for (int i = 0; i < playerDic.Count; i++)
@@ -386,6 +527,7 @@ public class GameManager : MonoBehaviour
     {
         campThrow += 1;
         if (campThrow == 4) campThrow = 0;
+        PlayerThrowDiceAni[(int)campThrow]?.Play("Show");
         EventSys.Instance.CallEvt(EventSys.ThrowDice, campThrow);
     }
     #endregion
