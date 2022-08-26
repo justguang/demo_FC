@@ -8,6 +8,7 @@ using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 using static Unity.Burst.Intrinsics.X86.Avx;
 using Random = UnityEngine.Random;
 
@@ -33,7 +34,7 @@ public class GameManager : MonoBehaviour
     public Transform[] EndPath;
 
     [Header("Player Prefab")]
-    public GameObject PlayerPrefab;
+    public GameObject Player_Prefab;
     public GameObject PlayerUIInfo_L_Prefab;
     public GameObject PlayerUIInfo_R_Prefab;
 
@@ -203,35 +204,6 @@ public class GameManager : MonoBehaviour
     #endregion
 
 
-    //加载Player
-    IEnumerator DoLoadPlayer(CampEnum camp, long userUID, string userName, string userFace)
-    {
-
-        Texture2D loadTexture = null;
-        Sprite loadFace = null;
-        using (UnityWebRequest webReq = new UnityWebRequest())
-        {
-            webReq.url = userFace;
-            webReq.method = UnityWebRequest.kHttpVerbGET;
-            webReq.downloadHandler = new DownloadHandlerTexture();
-            yield return webReq.SendWebRequest();
-            if (webReq.result == UnityWebRequest.Result.Success)
-            {
-                loadTexture = DownloadHandlerTexture.GetContent(webReq);
-                loadFace = Sprite.Create(loadTexture, new Rect(0, 0, loadTexture.width, loadTexture.height), new Vector2(0.5f, 0.5f));
-            }
-            else
-            {
-                //error
-                loadTexture = null;
-                loadFace = null;
-            }
-        }
-
-
-        LoadPlayer(camp, userUID, userName, loadFace);
-    }
-
     void OnLinkSuccessEvt()
     {
         LoginPanel.gameObject.SetActive(false);
@@ -271,7 +243,7 @@ public class GameManager : MonoBehaviour
         long userUID = (long)result[1];
 
 
-        //清楚信息
+        //清除Player信息
         if (playerDic.ContainsKey((int)camp))
         {
             if (playerDic[(int)camp].TryGetValue(userUID, out Player player))
@@ -281,7 +253,7 @@ public class GameManager : MonoBehaviour
 
             }
         }
-
+        //清除playerUIInfo
         if (playerUiInfoDic.ContainsKey((int)camp))
         {
             if (playerUiInfoDic[(int)camp].TryGetValue(userUID, out PlayerUIInfo playerUIInfo))
@@ -291,12 +263,43 @@ public class GameManager : MonoBehaviour
             }
         }
 
-
+        //该阵营无人生成一个人机加入
         if (playerDic[(int)camp].Count == 0)
         {
             int random = Random.Range(111, 1000);
             LoadPlayer(camp, random, random.ToString(), null);
         }
+    }
+
+
+    #region Load Prefab
+    //加载Player
+    IEnumerator DoLoadPlayer(CampEnum camp, long userUID, string userName, string userFace)
+    {
+
+        Texture2D loadTexture = null;
+        Sprite loadFace = null;
+        using (UnityWebRequest webReq = new UnityWebRequest())
+        {
+            webReq.url = userFace;
+            webReq.method = UnityWebRequest.kHttpVerbGET;
+            webReq.downloadHandler = new DownloadHandlerTexture();
+            yield return webReq.SendWebRequest();
+            if (webReq.result == UnityWebRequest.Result.Success)
+            {
+                loadTexture = DownloadHandlerTexture.GetContent(webReq);
+                loadFace = Sprite.Create(loadTexture, new Rect(0, 0, loadTexture.width, loadTexture.height), new Vector2(0.5f, 0.5f));
+            }
+            else
+            {
+                //error
+                loadTexture = null;
+                loadFace = null;
+            }
+        }
+
+
+        LoadPlayer(camp, userUID, userName, loadFace);
     }
 
     //实例化Player prefab
@@ -312,8 +315,10 @@ public class GameManager : MonoBehaviour
         Dictionary<long, PlayerUIInfo> tmpPUIDic = playerUiInfoDic[(int)camp];
         if (!tmpPDic.ContainsKey(userUID))
         {
-            GameObject obj = Instantiate<GameObject>(PlayerPrefab);
+            GameObject obj = Instantiate<GameObject>(Player_Prefab);
+            obj.name = userName;
             obj.transform.SetParent(PlayerRoot);
+            obj.transform.localScale = Vector3.one;
             Player player = obj.GetComponent<Player>();
 
             player.Init(userUID, userName, userFace, camp);
@@ -339,7 +344,7 @@ public class GameManager : MonoBehaviour
     }
 
     //实例化Player UI Info Prefab
-    PlayerUIInfo LoadPlayerUIIngo(CampEnum camp, string username, long userUID, Sprite userface, out GameObject obj)
+    PlayerUIInfo LoadPlayerUIIngo(CampEnum camp, string userName, long userUID, Sprite userface, out GameObject obj)
     {
         PlayerUIInfo playerUIInfo = null;
         Transform parent = null;
@@ -348,25 +353,29 @@ public class GameManager : MonoBehaviour
             case CampEnum.Yellow:
             case CampEnum.Red:
                 obj = GameObject.Instantiate<GameObject>(PlayerUIInfo_L_Prefab);
+                obj.name = userName;
                 playerUIInfo = obj.GetComponent<PlayerUIInfo>();
                 parent = PlayerUIInfoRoot[(int)camp];
                 if (parent != null) obj.transform.SetParent(parent);
-                playerUIInfo?.Init(camp, username, userUID, userface);
+                obj.transform.localScale = Vector3.one;
+                playerUIInfo?.Init(camp, userName, userUID, userface);
                 return playerUIInfo;
             case CampEnum.Blue:
             case CampEnum.Green:
                 obj = GameObject.Instantiate<GameObject>(PlayerUIInfo_R_Prefab);
+                obj.name = userName;
                 playerUIInfo = obj.GetComponent<PlayerUIInfo>();
                 parent = PlayerUIInfoRoot[(int)camp];
                 if (parent != null) obj.transform.SetParent(parent);
-                playerUIInfo?.Init(camp, username, userUID, userface);
+                obj.transform.localScale = Vector3.one;
+                playerUIInfo?.Init(camp, userName, userUID, userface);
                 return playerUIInfo;
             default:
                 obj = null;
                 return null;
         }
     }
-
+    #endregion
 
     bool IsExistPlayer(long userUID)
     {
@@ -382,7 +391,7 @@ public class GameManager : MonoBehaviour
 
     //执行掷骰子事件
     bool isStartThrowDice = false;
-    float throwTime = 2.0f;
+    float throwTime = Config.ThrowDiceWaitTime;
     int campThrow = (int)CampEnum.Red;
     void ThrowDice_CallEvt()
     {
@@ -397,7 +406,12 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Application.targetFrameRate = 60;
+        
+        Application.targetFrameRate = Config.FrameRate;//帧率
+        Screen.fullScreen = Config.isFullScreen;//是否全屏
+        //屏幕分辨率
+        Screen.SetResolution(Config.ScreenResolution_width, Config.ScreenResolution_height, Config.isFullScreen);
+
         Init();
     }
 
@@ -407,7 +421,7 @@ public class GameManager : MonoBehaviour
         if (isStartThrowDice)
         {
             throwTime += Time.deltaTime;
-            if (throwTime >= 2.0f)
+            if (throwTime >= Config.ThrowDiceWaitTime)
             {
                 throwTime = 0.0f;
                 ThrowDice_CallEvt();

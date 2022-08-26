@@ -2,7 +2,7 @@
     "name": "Nobi.UiRoundedCorners.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:02fb846f82d73b64f884c961e8616088"
+        "GUID:317c170941de455418cf1edc4c418d5f"
     ],
     "includePlatforms": [
         "Editor"

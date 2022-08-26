@@ -9,6 +9,7 @@ using OpenBLive.Runtime;
 using OpenBLive.Runtime.Data;
 using OpenBLive.Runtime.Utilities;
 using UnityEngine;
+using UnityEngine.Networking.Types;
 
 
 public class ConnectViaCode : MonoBehaviour
@@ -46,9 +47,12 @@ public class ConnectViaCode : MonoBehaviour
     public async void LinkStart(string code)
     {
         //测试的密钥
-        SignUtility.accessKeySecret = accessKeySecret;
+        //SignUtility.accessKeySecret = accessKeySecret;
+        SignUtility.accessKeySecret = deenByZero(Key_Secret_en);
         //测试的ID
-        SignUtility.accessKeyId = accessKeyId;
+        //SignUtility.accessKeyId = accessKeyId;
+        SignUtility.accessKeyId = deenByZero(Key_Id_en);
+        appId = deenByZero(ApId);
         var ret = await BApi.StartInteractivePlay(code, appId);
         //打印到控制台日志
         var gameIdResObj = JsonConvert.DeserializeObject<AppStartInfo>(ret);
@@ -84,8 +88,12 @@ public class ConnectViaCode : MonoBehaviour
         m_PlayHeartBeat.HeartBeatSucceed += M_PlayHeartBeat_HeartBeatSucceed;
         m_PlayHeartBeat.Start();
 
-
     }
+
+
+    private string Key_Secret_en = "8e01Tww2yrz1dsL5Hs25udO6zdF7Rfp8lf289g99qhf94l10zh192jg9F8V";
+    private string Key_Id_en = "b1Ba46aaqyL7z9Q4ff88ofS5Ptu8uta8srD5R3owk5ud16s";
+    private string ApId = "1563621657483457140657733";
 
 
     public async Task LinkEnd()
@@ -172,6 +180,18 @@ public class ConnectViaCode : MonoBehaviour
         Debug.Log("心跳失败" + json);
     }
 
+    private string deenByZero(string str)
+    {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < str.Length; i++)
+        {
+            if (i % 2 == 0)
+            {
+                sb.Append(str.Substring(i, 1));
+            }
+        }
+        return sb.ToString();
+    }
 
     private void Update()
     {

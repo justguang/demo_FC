@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,11 +7,12 @@ using static Unity.Burst.Intrinsics.X86.Avx;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] private Image bgImg;//背景
     [SerializeField] private Image face;//头像UI组件
-    [SerializeField] private Sprite[] bgImg_Sprites;//头像背景
     [SerializeField] private Sprite[] defaultFace_Sprites;//默认头像
-    [SerializeField] private AudioSource stepAudio;
+    [SerializeField] private Color[] faceOutlineColor;//头像外边框
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip[] audioClip;//音效
+    [SerializeField] private Transform outline;
 
     public CampEnum m_Camp { get; private set; }//所属阵营
     public long UserUID { get; private set; }//玩家UID
@@ -33,166 +35,41 @@ public class Player : MonoBehaviour
     {
         this.UserUID = userUID;
         this.UserName = userName;
-        this.UserFaceSprite = userFace;
         this.m_Camp = camp;
         this.OverMoveCount = 0;
 
-        gameObject.name = userName;
-
-        bgImg.sprite = bgImg_Sprites[(int)camp];
-        if (userFace == null)
-        {
-            face.sprite = defaultFace_Sprites[(int)camp];
-        }
-        else
-        {
-            face.sprite = userFace;
-        }
-
         ReturnWaitPoint();
+
+        face.transform.GetComponent<Outline>().effectColor = faceOutlineColor[(int)camp];
+        outline.GetComponent<Image>().color = faceOutlineColor[(int)camp];
+        if (userFace == null) userFace = defaultFace_Sprites[(int)camp];
+        face.sprite = userFace;
+        this.UserFaceSprite = userFace;
 
         //init Event
         EventSys.Instance.AddEvt(EventSys.ThrowDice_OK, MoveByDice);
         EventSys.Instance.AddEvt(EventSys.FlyToHit, OnFlyToHitEvt);
-
-    }
-
-
-    /// <summary>
-    /// 回到等待区等待起飞
-    /// </summary>
-    void ReturnWaitPoint()
-    {
-        Vector3 tmpPos = GameManager.Instance.WaitPoint[(int)m_Camp].position;
-        tmpPos.x += Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
-        tmpPos.y += Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
-        transform.position = tmpPos;
-
-        this.MaxMoveCount = 50;
-        this.IsEndPath = false;
-        this.IsFly = false;
-
-        switch (m_Camp)
-        {
-            case CampEnum.Yellow:
-                PathIndex = 0;
-                break;
-            case CampEnum.Blue:
-                PathIndex = 13;
-                break;
-            case CampEnum.Green:
-                PathIndex = 26;
-                break;
-            case CampEnum.Red:
-                PathIndex = 39;
-                break;
-            default:
-                PathIndex = 99;
-                break;
-        }
+        EventSys.Instance.AddEvt(EventSys.MoventStop, OnMoventStopEvt);
 
     }
 
     /// <summary>
-    /// 飞机飞行意外撞机事件
+    /// 移动停下来后触发
     /// </summary>
-    void OnFlyToHitEvt(object obj)
+    /// <param name="obj">【0】userUID，【1】阵营，【2】路径下标</param>
+    void OnMoventStopEvt(object obj)
     {
-        if (IsFly && IsEndPath && PathIndex == 2)
+        long uid = (long)((object[])obj)[0];
+
+        if (uid == UserUID)
         {
-            CampEnum otherCamp = (CampEnum)obj;
-            switch (m_Camp)
+            //自己
+            Node node = GameManager.Instance.PathList[PathIndex];
+            if (node.isFly && node.camp == (int)m_Camp)
             {
-                case CampEnum.Yellow:
-                    if (otherCamp.Equals(CampEnum.Green)) ReturnWaitPoint();
-                    break;
-                case CampEnum.Blue:
-                    if (otherCamp.Equals(CampEnum.Red)) ReturnWaitPoint();
-                    break;
-                case CampEnum.Green:
-                    if (otherCamp.Equals(CampEnum.Yellow)) ReturnWaitPoint();
-                    break;
-                case CampEnum.Red:
-                    if (otherCamp.Equals(CampEnum.Blue)) ReturnWaitPoint();
-                    break;
-                default:
-                    break;
-            }
+                audioSource.clip = audioClip[1];
+                audioSource.Play();
 
-        }
-    }
-
-
-    /// <summary>
-    /// 向目标移动一个单位格
-    /// </summary>
-    /// <param name="obj">[0]=>userUID, [1]=>dice</param>
-    void MoveByDice(object obj)
-    {
-        long[] param = (long[])obj;
-
-        if (param[0] == UserUID)
-        {
-            int dice = (int)param[1] + 1;
-            if (!IsFly)
-            {
-                if (dice == 1 || dice == 6)
-                {
-                    //起飞
-                    IsFly = true;
-                    Vector3 pos = GameManager.Instance.StartPoint[(int)m_Camp].position;
-                    transform.position = pos;
-                }
-            }
-            else
-            {
-                StartCoroutine(DoMoveOneToForward(dice));
-            }
-
-        }
-    }
-
-    IEnumerator DoMoveOneToForward(int moveNum)
-    {
-        bool isSitDown = false;
-        for (int i = 0; i < moveNum; i++)
-        {
-            if (i == (moveNum - 1)) isSitDown = true;
-            MoveOneToForward(isSitDown);
-            yield return new WaitForSeconds(0.42f);
-
-            if (IsEndPath && PathIndex == GameManager.Instance.EndPath[(int)m_Camp].childCount)
-            {
-                //winner
-                EventSys.Instance.CallEvt(EventSys.Winner, new object[] { m_Camp, UserUID });
-                break;
-            }
-        }
-    }
-
-    /// <summary>
-    /// 移动一格
-    /// </summary>
-    /// <param name="isSitDown">false本次移动是路过</param>
-    void MoveOneToForward(bool isSitDown = true)
-    {
-        OverMoveCount++;//步数+1
-
-        if (IsEndPath)
-        {
-            stepAudio?.Play();
-            Vector3 pos = GameManager.Instance.EndPath[(int)m_Camp].GetChild(PathIndex).position;
-            transform.position = pos;
-        }
-        else
-        {
-            stepAudio?.Play();
-            if (PathIndex == GameManager.Instance.PathList.Count) PathIndex = 0;//限定路径下标
-
-            Node node = GameManager.Instance.PathList[PathIndex];//根据路径下标获取Node信息
-            transform.position = node.pos;
-            if (isSitDown && node.isFly && node.camp == (int)m_Camp)
-            {//达到自己可飞行领地
                 OverMoveCount += node.flyOver;
                 MaxMoveCount -= node.flyOver;
                 for (int i = 0; i < node.flyOver; i++)
@@ -207,22 +84,244 @@ public class Player : MonoBehaviour
                 //飞机起飞触发意外撞机事件
                 EventSys.Instance.CallEvt(EventSys.FlyToHit, m_Camp);
             }
-            else
+        }
+        else
+        {
+            CampEnum camp = (CampEnum)((object[])obj)[1];
+            int pathIdx = (int)((object[])obj)[2];
+
+            if (!IsEndPath && !camp.Equals(m_Camp)
+                && pathIdx == PathIndex
+                && MaxMoveCount < Config.MaxMoveCount)
             {
-                MaxMoveCount--;//正常最大步数-1
+                audioSource.clip = audioClip[3];
+                audioSource.Play();
+
+                //被敌方飞机撞回
+                ReturnWaitPoint();
+            }
+        }
+
+    }
+
+
+
+    /// <summary>
+    /// 回到等待区等待起飞
+    /// </summary>
+    void ReturnWaitPoint()
+    {
+        this.MaxMoveCount = Config.MaxMoveCount;
+        this.IsEndPath = false;
+        this.IsFly = false;
+
+        switch (m_Camp)
+        {
+            case CampEnum.Yellow:
+                PathIndex = -1;
+                break;
+            case CampEnum.Blue:
+                PathIndex = 12;
+                break;
+            case CampEnum.Green:
+                PathIndex = 25;
+                break;
+            case CampEnum.Red:
+                PathIndex = 38;
+                break;
+            default:
+                PathIndex = 99;
+                break;
+        }
+
+        Vector3 tmpPos = GameManager.Instance.WaitPoint[(int)m_Camp].position;
+        tmpPos.x += UnityEngine.Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
+        tmpPos.y += UnityEngine.Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
+        transform.position = tmpPos;
+    }
+
+    /// <summary>
+    /// 飞行意外撞机事件
+    /// </summary>
+    /// <param name="obj">飞行者所属阵营</param>
+    void OnFlyToHitEvt(object obj)
+    {
+        if (IsFly && IsEndPath && PathIndex == 2)
+        {
+            bool isHit = false;
+            CampEnum otherCamp = (CampEnum)obj;
+            switch (m_Camp)
+            {
+                case CampEnum.Yellow:
+                    if (otherCamp.Equals(CampEnum.Green)) isHit = true;
+                    break;
+                case CampEnum.Blue:
+                    if (otherCamp.Equals(CampEnum.Red)) isHit = true;
+                    break;
+                case CampEnum.Green:
+                    if (otherCamp.Equals(CampEnum.Yellow)) isHit = true;
+                    break;
+                case CampEnum.Red:
+                    if (otherCamp.Equals(CampEnum.Blue)) isHit = true;
+                    break;
+                default:
+                    break;
             }
 
-            if (MaxMoveCount == 0)
+
+            if (isHit)
             {
-                //最大步数走完，进入终段路线
-                IsEndPath = true;
-                //重置下标
-                PathIndex = -1;
+                audioSource.clip = audioClip[3];
+                audioSource.Play();
+                StartCoroutine(DoScale(ReturnWaitPoint));
             }
 
         }
+    }
 
-        PathIndex++;//路径下标+1
+
+    /// <summary>
+    /// 掷骰子结束事件
+    /// </summary>
+    /// <param name="obj">【0】阵营，【1】userUID，【2】骰子点数</param>
+    void MoveByDice(object obj)
+    {
+        object[] param = (object[])obj;
+
+        if ((long)param[1] == UserUID)
+        {
+            int dice = (int)param[2] + 1;
+            if (!IsFly)
+            {
+                if (dice == 1 || dice == 6)
+                {
+                    audioSource.clip = audioClip[2];
+                    audioSource.Play();
+
+                    //起飞
+                    IsFly = true;
+                    Vector3 pos = GameManager.Instance.StartPoint[(int)m_Camp].position;
+                    transform.position = pos;
+                }
+            }
+            else
+            {
+                //动态改变在Hierarchy中的UI顺序
+                transform.SetSiblingIndex(transform.parent.childCount - 1);
+
+                StartCoroutine(DoMoveToForward(dice));
+            }
+
+        }
+    }
+
+
+    IEnumerator DoMoveToForward(int moveNum)
+    {
+        Vector3 m_scale = outline.localScale;
+        m_scale.x = 10f;
+        m_scale.y = 10f;
+        outline.localScale = m_scale;
+        while (m_scale.x > 1)
+        {
+            m_scale.x -= 0.3f;
+            m_scale.y -= 0.3f;
+            outline.localScale = m_scale;
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.5f);
+
+        int endPathCount = GameManager.Instance.EndPath[(int)m_Camp].childCount;
+        int pathCount = GameManager.Instance.PathList.Count;
+        for (int i = 0; i < moveNum; i++)
+        {
+            MoveOneToForward(pathCount);
+            yield return new WaitForSeconds(Config.MoveWaitTime);
+
+            if (IsEndPath)
+            {
+                if (PathIndex == (endPathCount - 1))
+                {
+                    //到达终点
+                    audioSource.clip = audioClip[1];
+                    audioSource.Play();
+
+                    StartCoroutine(DoScale(() => { EventSys.Instance.CallEvt(EventSys.Winner, new object[] { m_Camp, UserUID }); }));
+                    break;
+                }
+            }
+            else
+            {
+                if (i == moveNum - 1)
+                {
+                    /// 停下事件 【0】userUID，【1】阵营，【2】路径下标
+                    EventSys.Instance.CallEvt(EventSys.MoventStop, new object[] { UserUID, m_Camp, PathIndex });
+                }
+            }
+
+        }
+    }
+
+
+    /// <summary>
+    /// 移动一格
+    /// </summary>
+    /// <param name="isSitDown">false本次移动是路过</param>
+    void MoveOneToForward(int pathCount)
+    {
+        if (MaxMoveCount == 0)
+        {
+            //最大步数走完，进入终段路线
+            IsEndPath = true;
+            //重置下标
+            PathIndex = -1;
+        }
+
+        OverMoveCount += 1;//总步数+1
+        MaxMoveCount -= 1;//正常最大步数-1
+        PathIndex += 1;//路径下标+1
+
+        audioSource.clip = audioClip[0];
+        audioSource.Play();
+
+        if (IsEndPath)
+        {
+            Vector3 pos = GameManager.Instance.EndPath[(int)m_Camp].GetChild(PathIndex).position;
+            transform.position = pos;
+        }
+        else
+        {
+            if (PathIndex == pathCount) PathIndex = 0;//限定路径下标
+            Node node = GameManager.Instance.PathList[PathIndex];//根据路径下标获取Node信息
+            transform.position = node.pos;
+        }
+
+    }
+
+
+    //缩放
+    IEnumerator DoScale(Action callback = null)
+    {
+        Vector3 scale = transform.localScale;
+        while (scale.x < 1.5)
+        {
+            scale.x += 0.02f;
+            scale.y += 0.02f;
+            transform.localScale = scale;
+            yield return null;
+        }
+
+        while (scale.x > 1)
+        {
+            scale.x -= 0.02f;
+            scale.y -= 0.02f;
+            transform.localScale = scale;
+            yield return null;
+        }
+        yield return null;
+        transform.localScale = Vector3.one;
+        callback?.Invoke();
     }
 
 
@@ -230,6 +329,7 @@ public class Player : MonoBehaviour
     {
         EventSys.Instance.RemoveEvt(EventSys.ThrowDice_OK, MoveByDice);
         EventSys.Instance.RemoveEvt(EventSys.FlyToHit, OnFlyToHitEvt);
+        EventSys.Instance.RemoveEvt(EventSys.MoventStop, OnMoventStopEvt);
     }
 
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,43 +6,36 @@ using UnityEngine.UI;
 
 public class PlayerUIInfo : MonoBehaviour
 {
-    [SerializeField]
-    private Image face;//玩家头像
-    [SerializeField]
-    private Sprite[] defaultFace;//默认头像
-    private Sprite userFaceSprite;//玩家头像sprite
-    [SerializeField]
-    private Text username;//玩家昵称
-    [SerializeField]
-    private AudioSource diceAudio;//掷骰子声
-    [SerializeField]
-    private Image dice;//骰子img
-    [SerializeField]
-    private Sprite[] DiceArr;//骰子sprite
+    [SerializeField] private Image face_img;//玩家头像
+    [SerializeField] private Sprite[] defaultFace;//默认头像
+    [SerializeField] private Text username_txt;//玩家昵称
+    [SerializeField] private AudioSource audioSource;//掷骰子声
+    [SerializeField] private Image dice_img;//骰子img
+    [SerializeField] private Sprite[] DiceArr;//骰子sprite
+    [SerializeField] private Text realTime;//时间UI
 
+    private float startTime;//开始时间
     private bool isWinner = false;
 
-    public long userUID;//玩家UID
-    public CampEnum m_Camp;//阵营
+    public long UserUID { get; private set; }//玩家UID
+    public CampEnum m_Camp { get; private set; }//阵营
 
     public void Init(CampEnum camp, string username, long userUID, Sprite userFace)
     {
         this.m_Camp = camp;
-        this.username.text = username;
-        this.userUID = userUID;
-        this.userFaceSprite = userFace;
+        this.UserUID = userUID;
         this.isWinner = false;
 
-        gameObject.name = username;
+        if (username.Length > 7) username = username.Substring(0, 7) + "...";
+        this.username_txt.text = username;
 
         if (userFace == null)
         {
-            face.sprite = defaultFace[(int)m_Camp];
+            userFace = defaultFace[(int)m_Camp];
         }
-        else
-        {
-            face.sprite = userFace;
-        }
+        face_img.sprite = userFace;
+
+        this.startTime = Time.realtimeSinceStartup;
 
         EventSys.Instance.AddEvt(EventSys.ThrowDice, OnThrowDiceEvt);
         EventSys.Instance.AddEvt(EventSys.Winner, OnWinnerEvt);
@@ -54,7 +48,7 @@ public class PlayerUIInfo : MonoBehaviour
     void OnWinnerEvt(object obj)
     {
         object[] result = (object[])obj;
-        if ((long)result[1] == userUID)
+        if ((long)result[1] == UserUID)
         {
             isWinner = true;
         }
@@ -80,25 +74,33 @@ public class PlayerUIInfo : MonoBehaviour
     /// </summary>
     IEnumerator DoThrowDice()
     {
-        diceAudio?.Play();
+        audioSource?.Play();
         int oldIndex = -1;
         int randomIndex = -1;
         for (int i = 0; i < 10; i++)
         {
-            randomIndex = Random.Range(0, DiceArr.Length);
+            randomIndex = UnityEngine.Random.Range(0, DiceArr.Length);
             if (randomIndex == oldIndex)
             {
-                randomIndex = Random.Range(0, DiceArr.Length);
+                randomIndex = UnityEngine.Random.Range(0, DiceArr.Length);
             }
-            dice.sprite = DiceArr[randomIndex];
+            dice_img.sprite = DiceArr[randomIndex];
             yield return new WaitForSeconds(0.1f);
         }
 
-        EventSys.Instance.CallEvt(EventSys.ThrowDice_OK, new long[] { userUID, randomIndex });
+        EventSys.Instance.CallEvt(EventSys.ThrowDice_OK, new object[] { m_Camp, UserUID, randomIndex });
 
     }
 
+    private void LateUpdate()
+    {
+        TimeSpan ts = TimeSpan.FromSeconds(Time.realtimeSinceStartup - startTime);
+        if (realTime != null)
+        {
+            realTime.text = ts.ToString(@"hh\:mm\:ss");
+        }
 
+    }
 
 
     private void OnDestroy()

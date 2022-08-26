@@ -2,7 +2,7 @@
     "name": "OpenBLive.Samples.Script",
     "rootNamespace": "",
     "references": [
-        "GUID:aad39dd3dbbabc740941e057e6cef811"
+        "GUID:75e1ecd1b17383546a40d11cb4b721e4"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

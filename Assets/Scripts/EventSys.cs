@@ -62,6 +62,7 @@ public class EventSys
     public static readonly string ThrowDice = "掷骰子";
     public static readonly string ThrowDice_OK = "掷骰子结束";
 
+    public static readonly string MoventStop = "停下来";
 
     public static readonly string FlyToHit = "飞机飞行意外撞击";
 

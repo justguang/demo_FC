@@ -3,16 +3,25 @@ using System.Linq;
 
 public static class Config
 {
-    //###  key
-    public const string Access_Key_Secret = "80TwyzdLH2uOzFRpl299qf41z12gFV";
-    public const string Access_Key_Id = "bB4aqLzQf8oSPuuasDRoku1s";
-    public const string App_Id = "1661543510573";
-    //###  test 直播间ID 25701913
+    //true全屏
+    public const bool isFullScreen = false;
 
-    //offset
-    public const float OffsetWaitPos = 80f;
+    //屏幕分辨率
+    public const int ScreenResolution_width = 1920;
+    public const int ScreenResolution_height = 1080;
+
+    //帧率锁定
+    public const int FrameRate = 60;
+    //等待区位置偏移
+    public const float OffsetWaitPos = 65f;
     //每个阵营最多人数限制
     public const int MaxPlayer = 4;
+    //正常走环形路径步数
+    public const int MaxMoveCount = 50;
+    //每步之间的时间间隔【单位秒】
+    public const float MoveWaitTime = 0.5f;
+    //每次掷骰子时间间隔【单位秒】
+    public const float ThrowDiceWaitTime = 6.0f;
 
 
     #region 弹幕命令
