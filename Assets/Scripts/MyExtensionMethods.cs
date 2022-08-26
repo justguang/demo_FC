@@ -3,7 +3,7 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 
-public static class Extends
+public static class MyExtensionMethods
 {
 
     /// <summary>
@@ -51,7 +51,6 @@ public static class Extends
         FileStream fileStream = File.Open(savePath, FileMode.OpenOrCreate);
         fileStream.Write(dataBytes, 0, dataBytes.Length);
         fileStream.Close();
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
     }
 }
+

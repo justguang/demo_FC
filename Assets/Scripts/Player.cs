@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,6 +13,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Color[] faceOutlineColor;//头像外边框
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip[] audioClip;//音效
+    [SerializeField] private Transform outline;
 
     public CampEnum m_Camp { get; private set; }//所属阵营
     public long UserUID { get; private set; }//玩家UID
@@ -40,6 +42,7 @@ public class Player : MonoBehaviour
         ReturnWaitPoint();
 
         face.transform.GetComponent<Outline>().effectColor = faceOutlineColor[(int)camp];
+        outline.GetComponent<Image>().color = faceOutlineColor[(int)camp];
         if (userFace == null) userFace = defaultFace_Sprites[(int)camp];
         face.sprite = userFace;
         this.UserFaceSprite = userFace;
@@ -82,8 +85,8 @@ public class Player : MonoBehaviour
         }
 
         Vector3 tmpPos = GameManager.Instance.WaitPoint[(int)m_Camp].position;
-        tmpPos.x += Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
-        tmpPos.y += Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
+        tmpPos.x += UnityEngine.Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
+        tmpPos.y += UnityEngine.Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
         transform.position = tmpPos;
     }
 
@@ -136,8 +139,8 @@ public class Player : MonoBehaviour
             }
         }
 
-
     }
+
 
     /// <summary>
     /// 飞行意外撞机事件
@@ -170,11 +173,9 @@ public class Player : MonoBehaviour
 
             if (isHit)
             {
-                StartCoroutine(DoScale());
                 audioSource.clip = audioClip[3];
                 audioSource.Play();
-
-                ReturnWaitPoint();
+                StartCoroutine(DoScale(ReturnWaitPoint));
             }
 
         }
@@ -219,7 +220,20 @@ public class Player : MonoBehaviour
 
     IEnumerator DoMoveToForward(int moveNum)
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.8f);
+
+        Vector3 m_scale = outline.localScale;
+        m_scale.x = 10f;
+        m_scale.y = 10f;
+        outline.localScale = m_scale;
+        while (m_scale.x > 1)
+        {
+            m_scale.x -= 0.3f;
+            m_scale.y -= 0.3f;
+            outline.localScale = m_scale;
+            yield return null;
+        }
+        yield return null;
 
         int endPathCount = GameManager.Instance.EndPath[(int)m_Camp].childCount;
         int pathCount = GameManager.Instance.PathList.Count;
@@ -233,12 +247,10 @@ public class Player : MonoBehaviour
                 if (PathIndex == (endPathCount - 1))
                 {
                     //到达终点
-                    StartCoroutine(DoScale());
                     audioSource.clip = audioClip[1];
                     audioSource.Play();
 
-                    //winner
-                    EventSys.Instance.CallEvt(EventSys.Winner, new object[] { m_Camp, UserUID });
+                    StartCoroutine(DoScale(() => { EventSys.Instance.CallEvt(EventSys.Winner, new object[] { m_Camp, UserUID }); }));
                     break;
                 }
             }
@@ -290,25 +302,27 @@ public class Player : MonoBehaviour
     }
 
     //缩放
-    IEnumerator DoScale()
+    IEnumerator DoScale(Action callback = null)
     {
         Vector3 scale = transform.localScale;
         while (scale.x < 1.5)
         {
-            scale.x += 0.01f;
-            scale.y += 0.01f;
+            scale.x += 0.02f;
+            scale.y += 0.02f;
             transform.localScale = scale;
             yield return null;
         }
 
         while (scale.x > 1)
         {
-            scale.x -= 0.01f;
-            scale.y -= 0.01f;
+            scale.x -= 0.02f;
+            scale.y -= 0.02f;
             transform.localScale = scale;
             yield return null;
         }
         yield return null;
+        transform.localScale = Vector3.one;
+        callback?.Invoke();
     }
 
 

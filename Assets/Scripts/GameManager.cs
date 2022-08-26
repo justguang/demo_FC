@@ -340,10 +340,11 @@ public class GameManager : MonoBehaviour
         else
         {
             //playerTRI 不为空 =》 历史在榜
-            playerTRI = playerTimeRankList.Find(p =>
+            playerTimeRankList.Find(p =>
             {
                 if (p.userUID == userUID)
                 {
+                    playerTRI = p;
                     return p;
                 }
                 return false;
@@ -351,40 +352,29 @@ public class GameManager : MonoBehaviour
 
             if (playerTRI != null)
             {
-                playerTimeRankList.Remove(playerTRI);
-                playerTRI.UpdateUseTime(useTime);
-            }
-
-
-            int rankIndex = -1;
-            PlayerTimeRankInfo tmp = null;
-            for (int i = 0; i < playerTimeRankList.Count; i++)
-            {
-                tmp = playerTimeRankList[i];
-                if (tmp.UserTime > useTime)
-                {
-                    rankIndex = i;
-                    break;
-                }
-            }
-
-            if (rankIndex != -1)
-            {
-                //上榜
-                if (playerTRI == null) playerTRI = LoadPlayerTimeRankInfo(camp, userName, userUID, useTime, userFace);
-                playerTimeRankList.Insert(rankIndex, playerTRI);
-                for (int i = 3; i < playerTimeRankList.Count; i++)
-                {
-                    PlayerTimeRankInfo destoryP = playerTimeRankList[i];
-                    Destroy(destoryP.gameObject);
-                }
+                playerTRI.UpdateUseTime(useTime);//刷新在榜
             }
             else
             {
-                if (playerTimeRankList.Count < 4)
+                //上榜
+                playerTRI = LoadPlayerTimeRankInfo(camp, userName, userUID, useTime, userFace);
+                playerTimeRankList.Add(playerTRI);
+                playerTimeRankList.Sort((p1, p2) =>
                 {
-                    playerTRI = LoadPlayerTimeRankInfo(camp, userName, userUID, useTime, userFace);
-                    playerTimeRankList.Add(playerTRI);
+                    return p1.UserTime.CompareTo(p2.UserTime);
+                });
+            }
+
+            //清除4名开外
+            PlayerTimeRankInfo tmp = null;
+            for (int i = 4; i < playerTimeRankList.Count; i++)
+            {
+                tmp = playerTimeRankList[i];
+                if (tmp != null)
+                {
+                    playerTimeRankList.Remove(tmp);
+                    Destroy(tmp.gameObject);
+                    tmp = null;
                 }
             }
 
@@ -538,7 +528,11 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Application.targetFrameRate = Config.FrameRate;
+        Application.targetFrameRate = Config.FrameRate;//帧率
+        Screen.fullScreen = Config.isFullScreen;//是否全屏
+        //屏幕分辨率
+        Screen.SetResolution(Config.ScreenResolution_width, Config.ScreenResolution_height, Config.isFullScreen);
+
         Init();
     }
 

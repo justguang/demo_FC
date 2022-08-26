@@ -2,6 +2,13 @@
 
 public static class Config
 {
+    //true全屏
+    public const bool isFullScreen = false;
+
+    //屏幕分辨率
+    public const int ScreenResolution_width = 1320;
+    public const int ScreenResolution_height = 890;
+
     //帧率锁定
     public const int FrameRate = 60;
     //等待区位置偏移
@@ -11,7 +18,7 @@ public static class Config
     //正常走环形路径步数
     public const int MaxMoveCount = 50;
     //每步之间的时间间隔【单位秒】
-    public const float MoveWaitTime = 0.5f;
+    public const float MoveWaitTime = 0.45f;
     //每次掷骰子时间间隔【单位秒】
     public const float ThrowDiceWaitTime = 7.0f;
 
