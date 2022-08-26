@@ -9,25 +9,25 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    //ËùÓĞË³Ğò°´ÕÕÃ¶¾Ù CampEnum ÅÅĞò 0¡¢1¡¢2¡¢3 =¡·yellow¡¢blue¡¢green¡¢red
-    [Header("Íæ¼Ò¸ù½Úµã")]
+    //æ‰€æœ‰é¡ºåºæŒ‰ç…§æšä¸¾ CampEnum æ’åº 0ã€1ã€2ã€3 =ã€‹yellowã€blueã€greenã€red
+    [Header("ç©å®¶æ ¹èŠ‚ç‚¹")]
     public Transform PlayerRoot;
-    [Header("µÈ´ıÇø¸ù½Úµã")]
+    [Header("ç­‰å¾…åŒºæ ¹èŠ‚ç‚¹")]
     public Transform[] WaitPoint;
-    [Header("Æğ·ÉÇø¸ù½Úµã")]
+    [Header("èµ·é£åŒºæ ¹èŠ‚ç‚¹")]
     public Transform[] StartPoint;
-    [Header("Player UI info ĞÅÏ¢ÏÔÊ¾¸ù½Úµã")]
+    [Header("Player UI info ä¿¡æ¯æ˜¾ç¤ºæ ¹èŠ‚ç‚¹")]
     public Transform[] PlayerUIInfoRoot;
 
-    [Header("»·ĞÎÂ·¾¶¸ù½Úµã")]
+    [Header("ç¯å½¢è·¯å¾„æ ¹èŠ‚ç‚¹")]
     public Transform PathRoot;
-    [Header("»·ĞÎÂ·¾¶Êı¾İ")]
+    [Header("ç¯å½¢è·¯å¾„æ•°æ®")]
     public List<Node> PathList;
-    [Header("ÖÕ¶ÎÂ·¾¶¸ù½Úµã")]
+    [Header("ç»ˆæ®µè·¯å¾„æ ¹èŠ‚ç‚¹")]
     public Transform[] EndPath;
 
     [Header("Player Prefab")]
-    public GameObject PlayerPrefab;
+    public GameObject Player_Prefab;
     public GameObject PlayerUIInfo_L_Prefab;
     public GameObject PlayerUIInfo_R_Prefab;
 
@@ -39,7 +39,7 @@ public class GameManager : MonoBehaviour
     public Transform PlayPanel;
     #endregion
 
-    //ËùÓĞPlayer¡¾key => ÕóÓª =>  value<userUID,Player>¡¿
+    //æ‰€æœ‰Playerã€key => é˜µè¥ =>  value<userUID,Player>ã€‘
     private Dictionary<int, Dictionary<long, Player>> playerDic;
     private Dictionary<int, Dictionary<long, PlayerUIInfo>> playerUiInfoDic;
 
@@ -94,7 +94,7 @@ public class GameManager : MonoBehaviour
 
 
 
-    [ContextMenu("Éú³É»·ĞÎÂ·¾¶Êı¾İ")]
+    [ContextMenu("ç”Ÿæˆç¯å½¢è·¯å¾„æ•°æ®")]
     public void BackupNodePath()
     {
         PathList = new List<Node>();
@@ -122,7 +122,7 @@ public class GameManager : MonoBehaviour
     #region Private Func
 
     #region On Danmaku Event
-    //µ¯Ä»
+    //å¼¹å¹•
     void OnDanmakuEvt(Dm dm)
     {
         switch (dm.msg)
@@ -134,8 +134,8 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    //ÒÑ´æÔÚ
-                    Debug.LogWarning($"{dm.userName} ÒÑ´æÔÚ£¬¼ÓÈë´íÎó");
+                    //å·²å­˜åœ¨
+                    Debug.LogWarning($"{dm.userName} å·²å­˜åœ¨ï¼ŒåŠ å…¥é”™è¯¯");
                 }
                 break;
             case Config.Join_Blue:
@@ -145,8 +145,8 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    //ÒÑ´æÔÚ
-                    Debug.LogWarning($"{dm.userName} ÒÑ´æÔÚ£¬¼ÓÈë´íÎó");
+                    //å·²å­˜åœ¨
+                    Debug.LogWarning($"{dm.userName} å·²å­˜åœ¨ï¼ŒåŠ å…¥é”™è¯¯");
                 }
                 break;
             case Config.Join_Green:
@@ -156,8 +156,8 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    //ÒÑ´æÔÚ
-                    Debug.LogWarning($"{dm.userName} ÒÑ´æÔÚ£¬¼ÓÈë´íÎó");
+                    //å·²å­˜åœ¨
+                    Debug.LogWarning($"{dm.userName} å·²å­˜åœ¨ï¼ŒåŠ å…¥é”™è¯¯");
                 }
                 break;
             case Config.Join_Red:
@@ -167,8 +167,8 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    //ÒÑ´æÔÚ
-                    Debug.LogWarning($"{dm.userName} ÒÑ´æÔÚ£¬¼ÓÈë´íÎó");
+                    //å·²å­˜åœ¨
+                    Debug.LogWarning($"{dm.userName} å·²å­˜åœ¨ï¼ŒåŠ å…¥é”™è¯¯");
                 }
                 break;
             default:
@@ -177,19 +177,19 @@ public class GameManager : MonoBehaviour
 
     }
 
-    //ËÍÀñÎï
+    //é€ç¤¼ç‰©
     void OnGiftEvt(SendGift sendGift)
     {
 
     }
 
-    //ÊÕµ½´óº½º£
+    //æ”¶åˆ°å¤§èˆªæµ·
     void OnGuard(Guard guard)
     {
 
     }
 
-    //ÊÕµ½SC
+    //æ”¶åˆ°SC
     void OnSuperChat(SuperChat sc)
     {
 
@@ -197,7 +197,81 @@ public class GameManager : MonoBehaviour
     #endregion
 
 
-    //¼ÓÔØPlayer
+
+    void OnLinkSuccessEvt()
+    {
+        LoginPanel.gameObject.SetActive(false);
+        PlayPanel.gameObject.SetActive(true);
+
+        int random = Random.Range(111, 1000);
+        LoadPlayer(CampEnum.Yellow, random, random.ToString(), null);
+        random = Random.Range(111, 1000);
+        LoadPlayer(CampEnum.Blue, random, random.ToString(), null);
+        random = Random.Range(111, 1000);
+        LoadPlayer(CampEnum.Green, random, random.ToString(), null);
+        random = Random.Range(111, 1000);
+        LoadPlayer(CampEnum.Red, random, random.ToString(), null);
+
+        isStartThrowDice = true;
+
+        Debug.Log("é“¾æ¥æˆåŠŸï¼Œæ¸¸æˆå¼€å§‹");
+    }
+
+    void OnLinkFailedEvt()
+    {
+        PlayPanel.gameObject.SetActive(false);
+        LoginPanel.gameObject.SetActive(true);
+        Debug.LogWarning("é“¾æ¥å¤±è´¥");
+    }
+
+    void GameEnd()
+    {
+        ConnectViaCode.Instance?.LinkEnd();
+    }
+
+
+    /// <summary>
+    /// æœ‰ç©å®¶åˆ°è¾¾ç»ˆç‚¹
+    /// </summary>
+    /// <param name="obj">[0]=>ç©å®¶é˜µè¥ï¼Œ[1]=>ç©å®¶UID</param>
+    void OnWinnerEvt(object obj)
+    {
+        object[] result = (object[])obj;
+        CampEnum camp = (CampEnum)result[0];
+        long userUID = (long)result[1];
+
+
+        //æ¸…é™¤Playerä¿¡æ¯
+        if (playerDic.ContainsKey((int)camp))
+        {
+            if (playerDic[(int)camp].TryGetValue(userUID, out Player player))
+            {
+                playerDic[(int)camp].Remove(userUID);
+                Destroy(player.gameObject);
+
+            }
+        }
+
+        //æ¸…é™¤playerUIInfo
+        if (playerUiInfoDic.ContainsKey((int)camp))
+        {
+            if (playerUiInfoDic[(int)camp].TryGetValue(userUID, out PlayerUIInfo playerUIInfo))
+            {
+                playerUiInfoDic[(int)camp].Remove(userUID);
+                Destroy(playerUIInfo.gameObject);
+            }
+        }
+
+        //è¯¥é˜µè¥æ— äººæ—¶ç”Ÿæˆä¸€ä¸ªäººæœºåŠ å…¥
+        if (playerDic[(int)camp].Count == 0)
+        {
+            int random = Random.Range(111, 1000);
+            LoadPlayer(camp, random, random.ToString(), null);
+        }
+    }
+
+    #region Load Prefab
+    //åŠ è½½Player
     IEnumerator DoLoadPlayer(CampEnum camp, long userUID, string userName, string userFace)
     {
 
@@ -226,83 +300,12 @@ public class GameManager : MonoBehaviour
         LoadPlayer(camp, userUID, userName, loadFace);
     }
 
-    void OnLinkSuccessEvt()
-    {
-        LoginPanel.gameObject.SetActive(false);
-        PlayPanel.gameObject.SetActive(true);
-
-        int random = Random.Range(111, 1000);
-        LoadPlayer(CampEnum.Yellow, random, random.ToString(), null);
-        random = Random.Range(111, 1000);
-        LoadPlayer(CampEnum.Blue, random, random.ToString(), null);
-        random = Random.Range(111, 1000);
-        LoadPlayer(CampEnum.Green, random, random.ToString(), null);
-        random = Random.Range(111, 1000);
-        LoadPlayer(CampEnum.Red, random, random.ToString(), null);
-
-        isStartThrowDice = true;
-
-        Debug.Log("Á´½Ó³É¹¦£¬ÓÎÏ·¿ªÊ¼");
-    }
-
-    void OnLinkFailedEvt()
-    {
-        PlayPanel.gameObject.SetActive(false);
-        LoginPanel.gameObject.SetActive(true);
-        Debug.LogWarning("Á´½ÓÊ§°Ü");
-    }
-
-    void GameEnd()
-    {
-        ConnectViaCode.Instance?.LinkEnd();
-    }
-
-
-    /// <summary>
-    /// ÓĞÍæ¼Òµ½´ïÖÕµã
-    /// </summary>
-    /// <param name="obj">[0]=>Íæ¼ÒÕóÓª£¬[1]=>Íæ¼ÒUID</param>
-    void OnWinnerEvt(object obj)
-    {
-        object[] result = (object[])obj;
-        CampEnum camp = (CampEnum)result[0];
-        long userUID = (long)result[1];
-
-
-        //Çå³ıĞÅÏ¢
-        if (playerDic.ContainsKey((int)camp))
-        {
-            if (playerDic[(int)camp].TryGetValue(userUID, out Player player))
-            {
-                playerDic[(int)camp].Remove(userUID);
-                Destroy(player.gameObject);
-
-            }
-        }
-
-        if (playerUiInfoDic.ContainsKey((int)camp))
-        {
-            if (playerUiInfoDic[(int)camp].TryGetValue(userUID, out PlayerUIInfo playerUIInfo))
-            {
-                playerUiInfoDic[(int)camp].Remove(userUID);
-                Destroy(playerUIInfo.gameObject);
-            }
-        }
-
-
-        if (playerDic[(int)camp].Count == 0)
-        {
-            int random = Random.Range(111, 1000);
-            LoadPlayer(camp, random, random.ToString(), null);
-        }
-    }
-
-    //ÊµÀı»¯Player prefab
+    //å®ä¾‹åŒ–Player prefab
     void LoadPlayer(CampEnum camp, long userUID, string userName, Sprite userFace)
     {
         if (playerDic[(int)camp].Count >= Config.MaxPlayer)
         {
-            Debug.LogWarning($"[{userName}]¼ÓÈëÊ§°Ü£¬ [{camp}] ÕóÓªÈËÊıÒÑÂú¡£");
+            Debug.LogWarning($"[{userName}]åŠ å…¥å¤±è´¥ï¼Œ [{camp}] é˜µè¥äººæ•°å·²æ»¡ã€‚");
             return;
         }
 
@@ -310,11 +313,13 @@ public class GameManager : MonoBehaviour
         Dictionary<long, PlayerUIInfo> tmpPUIDic = playerUiInfoDic[(int)camp];
         if (!tmpPDic.ContainsKey(userUID))
         {
-            GameObject obj = Instantiate<GameObject>(PlayerPrefab);
+            GameObject obj = Instantiate<GameObject>(Player_Prefab);
+            obj.name = userName;
             obj.transform.SetParent(PlayerRoot);
+            obj.transform.localScale = Vector3.one;
             Player player = obj.GetComponent<Player>();
 
-            player.Init(userUID, userName, userFace, camp);
+            player?.Init(userUID, userName, userFace, camp);
             PlayerUIInfo playerUIInfo = LoadPlayerUIIngo(camp, userName, userUID, userFace, out GameObject objUI);
             if (playerUIInfo != null)
             {
@@ -326,18 +331,18 @@ public class GameManager : MonoBehaviour
             {
                 Destroy(obj);
                 Destroy(objUI);
-                Debug.LogWarning($"Íæ¼Ò[{userName}] ¼ÓÈëÕóÓªÊ§°Ü£¬ÇëÉÔºóÖØÊÔ");
+                Debug.LogWarning($"ç©å®¶[{userName}] åŠ å…¥é˜µè¥å¤±è´¥ï¼Œè¯·ç¨åé‡è¯•");
             }
 
         }
         else
         {
-            Debug.LogWarning($"Íæ¼Ò[{userName}]£¬ÒÑ´æÔÚ");
+            Debug.LogWarning($"ç©å®¶[{userName}]ï¼Œå·²å­˜åœ¨");
         }
     }
 
-    //ÊµÀı»¯Player UI Info Prefab
-    PlayerUIInfo LoadPlayerUIIngo(CampEnum camp, string username, long userUID, Sprite userface, out GameObject obj)
+    //å®ä¾‹åŒ–Player UI Info Prefab
+    PlayerUIInfo LoadPlayerUIIngo(CampEnum camp, string userName, long userUID, Sprite userface, out GameObject obj)
     {
         PlayerUIInfo playerUIInfo = null;
         Transform parent = null;
@@ -346,25 +351,29 @@ public class GameManager : MonoBehaviour
             case CampEnum.Yellow:
             case CampEnum.Red:
                 obj = GameObject.Instantiate<GameObject>(PlayerUIInfo_L_Prefab);
+                obj.name = userName;
                 playerUIInfo = obj.GetComponent<PlayerUIInfo>();
                 parent = PlayerUIInfoRoot[(int)camp];
                 if (parent != null) obj.transform.SetParent(parent);
-                playerUIInfo?.Init(camp, username, userUID, userface);
+                obj.transform.localScale = Vector3.one;
+                playerUIInfo?.Init(camp, userName, userUID, userface);
                 return playerUIInfo;
             case CampEnum.Blue:
             case CampEnum.Green:
                 obj = GameObject.Instantiate<GameObject>(PlayerUIInfo_R_Prefab);
+                obj.name = userName;
                 playerUIInfo = obj.GetComponent<PlayerUIInfo>();
                 parent = PlayerUIInfoRoot[(int)camp];
                 if (parent != null) obj.transform.SetParent(parent);
-                playerUIInfo?.Init(camp, username, userUID, userface);
+                obj.transform.localScale = Vector3.one;
+                playerUIInfo?.Init(camp, userName, userUID, userface);
                 return playerUIInfo;
             default:
                 obj = null;
                 return null;
         }
     }
-
+    #endregion
 
     bool IsExistPlayer(long userUID)
     {
@@ -378,7 +387,7 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
-    //Ö´ĞĞÖÀ÷»×ÓÊÂ¼ş
+    //æ‰§è¡Œæ·éª°å­äº‹ä»¶
     bool isStartThrowDice = false;
     float throwTime = Config.ThrowDiceWaitTime;
     int campThrow = (int)CampEnum.Red;
@@ -395,7 +404,10 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Application.targetFrameRate = Config.FrameRate;
+        Application.targetFrameRate = Config.FrameRate;//å¸§ç‡
+        Screen.fullScreen = Config.isFullScreen;//æ˜¯å¦å…¨å±
+        //å±å¹•åˆ†è¾¨ç‡
+        Screen.SetResolution(Config.ScreenResolution_width, Config.ScreenResolution_height, Config.isFullScreen);
         Init();
     }
 
@@ -436,7 +448,7 @@ public class GameManager : MonoBehaviour
 
         }
 
-        #region  For Test µ¯Ä»ÃüÁî
+        #region  For Test å¼¹å¹•å‘½ä»¤
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             Debug.Log("Key Down [1]");

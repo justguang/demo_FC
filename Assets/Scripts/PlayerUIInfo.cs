@@ -1,111 +1,106 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerUIInfo : MonoBehaviour
 {
-    [SerializeField]
-    private Image face;//Íæ¼ÒÍ·Ïñ
-    [SerializeField]
-    private Sprite[] defaultFace;//Ä¬ÈÏÍ·Ïñ
-    private Sprite userFaceSprite;//Íæ¼ÒÍ·Ïñsprite
-    [SerializeField]
-    private Text username;//Íæ¼ÒêÇ³Æ
-    [SerializeField]
-    private AudioSource diceAudio;//ÖÀ÷»×ÓÉù
-    [SerializeField]
-    private Image dice;//÷»×Óimg
-    [SerializeField]
-    private Sprite[] DiceArr;//÷»×Ósprite
+    [SerializeField] private Image face_img;//ç©å®¶å¤´åƒ
+    [SerializeField] private Sprite[] defaultFace;//é»˜è®¤å¤´åƒ
+    [SerializeField] private Text username_txt;//ç©å®¶æ˜µç§°
+    [SerializeField] private AudioSource audioSource;//æ·éª°å­å£°æ•ˆ
+    [SerializeField] private Image dice_img;//éª°å­img
+    [SerializeField] private Sprite[] DiceArr;//éª°å­Sprite
+    [SerializeField] private Text realTime;//æ—¶é—´UI
 
-    private bool isWinner = false;
+    private float startTime;//å¼€å§‹æ—¶é—´
+    private bool isWinner = false;//ã€trueåˆ°è¾¾ç»ˆç‚¹ã€‘
 
-    public long userUID;//Íæ¼ÒUID
-    public CampEnum m_Camp;//ÕóÓª
+    public long UserUID { get; private set; }//ç©å®¶UID
+    public CampEnum m_Camp { get; private set; }//é˜µè¥
 
     public void Init(CampEnum camp, string username, long userUID, Sprite userFace)
     {
         this.m_Camp = camp;
-        this.userUID = userUID;
-        this.userFaceSprite = userFace;
+        this.UserUID = userUID;
         this.isWinner = false;
 
-        if (username.Length > 5)
-        {
-            this.username.text = username.Substring(0, 5) + ".....";
-        }
-        else
-        {
-            this.username.text = username;
-        }
-        gameObject.name = username;
+        if (username.Length > 6) username = username.Substring(0, 6) + "...";
+        this.username_txt.text = username;
 
         if (userFace == null)
         {
-            face.sprite = defaultFace[(int)m_Camp];
+            userFace = defaultFace[(int)m_Camp];
         }
-        else
-        {
-            face.sprite = userFaceSprite;
-        }
+        face_img.sprite = userFace;
 
-        transform.localScale = Vector3.one;
+        this.startTime = Time.realtimeSinceStartup;
+
         EventSys.Instance.AddEvt(EventSys.ThrowDice, OnThrowDiceEvt);
         EventSys.Instance.AddEvt(EventSys.Winner, OnWinnerEvt);
     }
 
     /// <summary>
-    /// µ½´ïÖÕµãÊÂ¼ş
+    /// åˆ°è¾¾ç»ˆç‚¹äº‹ä»¶
     /// </summary>
-    /// <param name="obj">¡¾0¡¿µ½´ïÖÕµãÕßËùÊôÕóÓª£¬¡¾1¡¿µ½´ïÖÕµãÕßUID</param>
+    /// <param name="obj"></param>
     void OnWinnerEvt(object obj)
     {
         object[] result = (object[])obj;
-        if ((long)result[1] == userUID)
+        if ((long)result[1] == UserUID)
         {
             isWinner = true;
         }
     }
 
     /// <summary>
-    /// ÖÀ÷»×ÓÊÂ¼ş´¥·¢
+    /// æ·éª°å­äº‹ä»¶è§¦å‘
     /// </summary>
-    /// <param name="obj">ÕóÓª</param>
+    /// <param name="obj"></param>
     void OnThrowDiceEvt(object obj)
     {
         int tmpCamp = (int)obj;
         if (tmpCamp == (int)m_Camp && isWinner == false)
         {
-            //ÂÖµ½ÎÒ·½ÖÀ÷»×Ó
+            //è½®åˆ°æˆ‘æ–¹æ·éª°å­
             StartCoroutine(DoThrowDice());
         }
     }
 
 
     /// <summary>
-    /// ÖÀ÷»×Ó
+    /// æ·éª°å­
     /// </summary>
     IEnumerator DoThrowDice()
     {
-        diceAudio?.Play();
+        audioSource?.Play();
         int oldIndex = -1;
         int randomIndex = -1;
         for (int i = 0; i < 10; i++)
         {
-            randomIndex = Random.Range(0, DiceArr.Length);
+            randomIndex = UnityEngine.Random.Range(0, DiceArr.Length);
             if (randomIndex == oldIndex)
             {
-                randomIndex = Random.Range(0, DiceArr.Length);
+                randomIndex = UnityEngine.Random.Range(0, DiceArr.Length);
             }
-            dice.sprite = DiceArr[randomIndex];
+            dice_img.sprite = DiceArr[randomIndex];
             yield return new WaitForSeconds(0.1f);
         }
 
-        EventSys.Instance.CallEvt(EventSys.ThrowDice_OK, new long[] { userUID, randomIndex });
+        EventSys.Instance.CallEvt(EventSys.ThrowDice_OK, new object[] { m_Camp, UserUID, randomIndex });
 
     }
 
+    private void LateUpdate()
+    {
+        TimeSpan ts = TimeSpan.FromSeconds(Time.realtimeSinceStartup - startTime);
+        if (realTime != null)
+        {
+            realTime.text = ts.ToString(@"hh\:mm\:ss");
+        }
 
+    }
 
 
     private void OnDestroy()

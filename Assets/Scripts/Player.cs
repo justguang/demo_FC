@@ -1,7 +1,11 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// 玩家【棋子】
+/// </summary>
 public class Player : MonoBehaviour
 {
     [SerializeField] private Image face;//头像UI组件
@@ -9,6 +13,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Color[] faceOutlineColor;//头像外边框
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip[] audioClip;//音效
+    [SerializeField] private Transform outline;
 
     public CampEnum m_Camp { get; private set; }//所属阵营
     public long UserUID { get; private set; }//玩家UID
@@ -19,6 +24,14 @@ public class Player : MonoBehaviour
     public int OverMoveCount { get; private set; }//玩家走了多少步
     public int MaxMoveCount { get; private set; }//玩家需要走多少步才能进入终段
     public bool IsFly { get; private set; }//true已起飞，false等待区等待起飞
+
+    private int audioStep_ClipIndex;//走路音效clip下标
+    private int audioKill_ClipIndex;//被撞击音效clip下标
+    private int audioQiFei_ClipIndex;//从等待区起飞音效clip下标
+    private int audioFly_ClipIndex;//从路上自己领地起飞音效clip下标
+    private int audioWinner_ClipIndex;//到达终点音效clip下标
+
+
 
     /// <summary>
     /// 初始化【加入阵营】，进入等待区
@@ -31,22 +44,16 @@ public class Player : MonoBehaviour
     {
         this.UserUID = userUID;
         this.UserName = userName;
-        this.UserFaceSprite = userFace;
         this.m_Camp = camp;
         this.OverMoveCount = 0;
 
         ReturnWaitPoint();
-        gameObject.name = userName;
 
         face.transform.GetComponent<Outline>().effectColor = faceOutlineColor[(int)camp];
-        if (userFace == null)
-        {
-            face.sprite = defaultFace_Sprites[(int)camp];
-        }
-        else
-        {
-            face.sprite = userFace;
-        }
+        outline.GetComponent<Image>().color = faceOutlineColor[(int)camp];
+        if (userFace == null) userFace = defaultFace_Sprites[(int)camp];
+        face.sprite = userFace;
+        this.UserFaceSprite = userFace;
 
 
         //init Event
@@ -86,9 +93,17 @@ public class Player : MonoBehaviour
         }
 
         Vector3 tmpPos = GameManager.Instance.WaitPoint[(int)m_Camp].position;
-        tmpPos.x += Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
-        tmpPos.y += Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
+        tmpPos.x += UnityEngine.Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
+        tmpPos.y += UnityEngine.Random.Range(-Config.OffsetWaitPos, Config.OffsetWaitPos);
         transform.position = tmpPos;
+
+
+        //重置各音效clip下标
+        audioStep_ClipIndex = UnityEngine.Random.Range(0, 3);
+        audioKill_ClipIndex = UnityEngine.Random.Range(3, 7);
+        audioQiFei_ClipIndex = UnityEngine.Random.Range(7, 9);
+        audioWinner_ClipIndex = 9;
+        audioFly_ClipIndex = 10;
     }
 
     /// <summary>
@@ -105,7 +120,7 @@ public class Player : MonoBehaviour
             Node node = GameManager.Instance.PathList[PathIndex];
             if (node.isFly && node.camp == (int)m_Camp)
             {
-                audioSource.clip = audioClip[1];
+                audioSource.clip = audioClip[audioFly_ClipIndex];
                 audioSource.Play();
 
                 OverMoveCount += node.flyOver;
@@ -132,7 +147,7 @@ public class Player : MonoBehaviour
                 && pathIdx == PathIndex
                 && MaxMoveCount < Config.MaxMoveCount)
             {
-                audioSource.clip = audioClip[3];
+                audioSource.clip = audioClip[audioKill_ClipIndex];
                 audioSource.Play();
 
                 //被敌方飞机撞回
@@ -140,8 +155,8 @@ public class Player : MonoBehaviour
             }
         }
 
-
     }
+
 
     /// <summary>
     /// 飞行意外撞机事件
@@ -174,11 +189,9 @@ public class Player : MonoBehaviour
 
             if (isHit)
             {
-                StartCoroutine(DoScale());
-                audioSource.clip = audioClip[3];
+                audioSource.clip = audioClip[audioKill_ClipIndex];
                 audioSource.Play();
-
-                ReturnWaitPoint();
+                StartCoroutine(DoScale(ReturnWaitPoint));
             }
 
         }
@@ -186,21 +199,21 @@ public class Player : MonoBehaviour
 
 
     /// <summary>
-    /// 向目标移动一个单位格
+    /// 掷骰子结束事件
     /// </summary>
-    /// <param name="obj">[0]=>userUID, [1]=>骰子点数</param>
+    /// <param name="obj">【0】阵营，【1】userUID，【2】骰子点数</param>
     void MoveByDice(object obj)
     {
-        long[] param = (long[])obj;
+        object[] param = (object[])obj;
 
-        if (param[0] == UserUID)
+        if ((long)param[1] == UserUID)
         {
-            int dice = (int)param[1] + 1;
+            int dice = (int)param[2] + 1;
             if (!IsFly)
             {
                 if (dice == 1 || dice == 6)
                 {
-                    audioSource.clip = audioClip[2];
+                    audioSource.clip = audioClip[audioQiFei_ClipIndex];
                     audioSource.Play();
 
                     //起飞
@@ -223,6 +236,21 @@ public class Player : MonoBehaviour
 
     IEnumerator DoMoveToForward(int moveNum)
     {
+        yield return new WaitForSeconds(0.8f);
+
+        Vector3 m_scale = outline.localScale;
+        m_scale.x = 10f;
+        m_scale.y = 10f;
+        outline.localScale = m_scale;
+        while (m_scale.x > 1)
+        {
+            m_scale.x -= 0.3f;
+            m_scale.y -= 0.3f;
+            outline.localScale = m_scale;
+            yield return null;
+        }
+        yield return null;
+
         int endPathCount = GameManager.Instance.EndPath[(int)m_Camp].childCount;
         int pathCount = GameManager.Instance.PathList.Count;
         for (int i = 0; i < moveNum; i++)
@@ -235,12 +263,10 @@ public class Player : MonoBehaviour
                 if (PathIndex == (endPathCount - 1))
                 {
                     //到达终点
-                    StartCoroutine(DoScale());
-                    audioSource.clip = audioClip[1];
+                    audioSource.clip = audioClip[audioWinner_ClipIndex];
                     audioSource.Play();
 
-                    //winner
-                    EventSys.Instance.CallEvt(EventSys.Winner, new object[] { m_Camp, UserUID });
+                    StartCoroutine(DoScale(() => { EventSys.Instance.CallEvt(EventSys.Winner, new object[] { m_Camp, UserUID }); }));
                     break;
                 }
             }
@@ -274,7 +300,7 @@ public class Player : MonoBehaviour
         MaxMoveCount -= 1;//正常最大步数-1
         PathIndex += 1;//路径下标+1
 
-        audioSource.clip = audioClip[0];
+        audioSource.clip = audioClip[audioStep_ClipIndex];
         audioSource.Play();
 
         if (IsEndPath)
@@ -292,7 +318,7 @@ public class Player : MonoBehaviour
     }
 
     //缩放
-    IEnumerator DoScale()
+    IEnumerator DoScale(Action callback = null)
     {
         Vector3 scale = transform.localScale;
         while (scale.x < 1.5)
@@ -311,6 +337,8 @@ public class Player : MonoBehaviour
             yield return null;
         }
         yield return null;
+        transform.localScale = Vector3.one;
+        callback?.Invoke();
     }
 
 
