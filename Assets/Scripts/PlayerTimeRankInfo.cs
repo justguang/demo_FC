@@ -13,17 +13,17 @@ public class PlayerTimeRankInfo : MonoBehaviour
 
     public CampEnum m_Camp { get; private set; }
     public long userUID { get; private set; }
-    public float UserTime { get; private set; }//ÓÃÊ±¡¾µ¥Î»Ãë¡¿
+    public float UserTime { get; private set; }//ç”¨æ—¶ã€å•ä½ç§’ã€‘
 
 
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="camp">ÕóÓª</param>
-    /// <param name="userName">Íæ¼ÒÃû</param>
-    /// <param name="userUID">Íæ¼ÒUID</param>
-    /// <param name="useTime">Í¨¹ØÓÃÊ±¡¾µ¥Î»Ãë¡¿</param>
-    /// <param name="userFace">Íæ¼ÒÍ·Ïñ</param>
+    /// <param name="camp">é˜µè¥</param>
+    /// <param name="userName">ç©å®¶å</param>
+    /// <param name="userUID">ç©å®¶UID</param>
+    /// <param name="useTime">é€šå…³ç”¨æ—¶ã€å•ä½ç§’ã€‘</param>
+    /// <param name="userFace">ç©å®¶å¤´åƒ</param>
     public void Init(CampEnum camp, string userName, long userUID, float useTime, Sprite userFace)
     {
         this.m_Camp = camp;
@@ -53,7 +53,7 @@ public class PlayerTimeRankInfo : MonoBehaviour
     }
 
     /// <summary>
-    /// ¸üĞÂÍ¨¹ØÓÃÊ±
+    /// æ›´æ–°é€šå…³ç”¨æ—¶
     /// </summary>
     /// <param name="useTime"></param>
     public void UpdateUseTime(float useTime)

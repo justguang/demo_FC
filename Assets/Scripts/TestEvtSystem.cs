@@ -1,17 +1,18 @@
 using UnityEngine;
 
+///æµ‹è¯•äº‹ä»¶ç³»ç»Ÿ
 public class TestEvtSystem : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
     {
         EventSys.Instance.AddEvt(EventSys.test, CB);
-        Debug.Log($"ÎÒÊÇ {this.name}£¬Ìí¼Ó {EventSys.test}ÊÂ¼ş¡£");
+        Debug.Log($"æˆ‘æ˜¯ {this.name}ï¼Œæ·»åŠ  {EventSys.test}äº‹ä»¶ã€‚");
     }
 
     void CB(object obj)
     {
-        Debug.Log($"ÎÒÊÇ TestEvtSystem£¬ÓĞÈË´¥·¢ÁË {EventSys.test}ÊÂ¼ş¡£");
+        Debug.Log($"æˆ‘æ˜¯ TestEvtSystemï¼Œæœ‰äººè§¦å‘äº† {EventSys.test}äº‹ä»¶ã€‚");
     }
 
     private void Update()
@@ -20,13 +21,13 @@ public class TestEvtSystem : MonoBehaviour
         {
             Debug.Log("Input Key Down [D]");
             EventSys.Instance.RemoveEvt(EventSys.test, CB);
-            Debug.Log($"ÎÒÊÇ {this.name}£¬É¾³ı {EventSys.test}ÊÂ¼ş¡£");
+            Debug.Log($"æˆ‘æ˜¯ {this.name}ï¼Œåˆ é™¤ {EventSys.test}äº‹ä»¶ã€‚");
         }
         else if (Input.GetKeyDown(KeyCode.F))
         {
             Debug.Log("Input Key Down [F]");
             EventSys.Instance.AddEvt(EventSys.test, CB);
-            Debug.Log($"ÎÒÊÇ {this.name}£¬Ìí¼Ó {EventSys.test}ÊÂ¼ş¡£");
+            Debug.Log($"æˆ‘æ˜¯ {this.name}ï¼Œæ·»åŠ  {EventSys.test}äº‹ä»¶ã€‚");
         }
     }
 }

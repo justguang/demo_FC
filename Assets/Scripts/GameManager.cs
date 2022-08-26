@@ -13,28 +13,28 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    //ËùÓĞË³Ğò°´ÕÕÃ¶¾Ù CampEnum ÅÅĞò 0¡¢1¡¢2¡¢3 =¡·yellow¡¢blue¡¢green¡¢red
-    [Header("Íæ¼Ò¸ù½Úµã")]
+    //æ‰€æœ‰é¡ºåºæŒ‰ç…§æšä¸¾ CampEnum æ’åº 0ã€1ã€2ã€3 =ã€‹yellowã€blueã€greenã€red
+    [Header("ç©å®¶æ ¹èŠ‚ç‚¹")]
     public Transform PlayerRoot;
-    [Header("µÈ´ıÇø¸ù½Úµã")]
+    [Header("ç­‰å¾…åŒºæ ¹èŠ‚ç‚¹")]
     public Transform[] WaitPoint;
-    [Header("Æğ·ÉÇø¸ù½Úµã")]
+    [Header("èµ·é£åŒºæ ¹èŠ‚ç‚¹")]
     public Transform[] StartPoint;
-    [Header("Player UI ĞÅÏ¢ÏÔÊ¾¸ù½Úµã")]
+    [Header("Player UI ä¿¡æ¯æ˜¾ç¤ºæ ¹èŠ‚ç‚¹")]
     public Transform PlayerUILayoutGroup;
-    [Header("ÅÅĞĞĞÅÏ¢")]
+    [Header("æ’è¡Œä¿¡æ¯")]
     public Transform TimeRankLayoutGroup;
 
-    [Header("ÖÀ÷»×ÓÃæ°å")]
+    [Header("æ·éª°å­é¢æ¿")]
     public Transform[] PlayerThrowDicePanel;
-    [Header("ÖÀ÷»×Ó¶¯»­")]
+    [Header("æ·éª°å­åŠ¨ç”»")]
     public Animator[] PlayerThrowDiceAni;
 
-    [Header("»·ĞÎÂ·¾¶¸ù½Úµã")]
+    [Header("ç¯å½¢è·¯å¾„æ ¹èŠ‚ç‚¹")]
     public Transform PathRoot;
-    [Header("»·ĞÎÂ·¾¶Êı¾İ")]
+    [Header("ç¯å½¢è·¯å¾„æ•°æ®")]
     public List<Node> PathList;
-    [Header("ÖÕ¶ÎÂ·¾¶¸ù½Úµã")]
+    [Header("ç»ˆæ®µè·¯å¾„æ ¹èŠ‚ç‚¹")]
     public Transform[] EndPath;
 
 
@@ -52,11 +52,11 @@ public class GameManager : MonoBehaviour
     public Transform PlayPanel;
     #endregion
 
-    //ËùÓĞPlayer¡¾key => ÕóÓª =>  value<userUID,Player>¡¿
+    //æ‰€æœ‰Playerã€key => é˜µè¥ =>  value<userUID,Player>ã€‘
     private Dictionary<int, Dictionary<long, Player>> playerDic;
     private Dictionary<int, Dictionary<long, PlayerUI>> playerUIDic;
     private Dictionary<int, Dictionary<long, PlayerThrowDice>> playerThrowDiceDic;
-    //playerÅÅĞĞĞÅÏ¢
+    //playeræ’è¡Œä¿¡æ¯
     private List<PlayerTimeRankInfo> playerTimeRankList;
 
     public void Init()
@@ -120,7 +120,7 @@ public class GameManager : MonoBehaviour
 
 
 
-    [ContextMenu("Éú³É»·ĞÎÂ·¾¶Êı¾İ")]
+    [ContextMenu("ç”Ÿæˆç¯å½¢è·¯å¾„æ•°æ®")]
     public void BackupNodePath()
     {
         PathList = new List<Node>();
@@ -148,7 +148,7 @@ public class GameManager : MonoBehaviour
     #region Private Func
 
     #region On Danmaku Event
-    //µ¯Ä»
+    //å¼¹å¹•
     void OnDanmakuEvt(Dm dm)
     {
         switch (dm.msg)
@@ -160,8 +160,8 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    //ÒÑ´æÔÚ
-                    Debug.LogWarning($"{dm.userName} ÒÑ´æÔÚ£¬¼ÓÈë´íÎó");
+                    //å·²å­˜åœ¨
+                    Debug.LogWarning($"{dm.userName} å·²å­˜åœ¨ï¼ŒåŠ å…¥é”™è¯¯");
                 }
                 break;
             case Config.Join_Blue:
@@ -171,8 +171,8 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    //ÒÑ´æÔÚ
-                    Debug.LogWarning($"{dm.userName} ÒÑ´æÔÚ£¬¼ÓÈë´íÎó");
+                    //å·²å­˜åœ¨
+                    Debug.LogWarning($"{dm.userName} å·²å­˜åœ¨ï¼ŒåŠ å…¥é”™è¯¯");
                 }
                 break;
             case Config.Join_Green:
@@ -182,8 +182,8 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    //ÒÑ´æÔÚ
-                    Debug.LogWarning($"{dm.userName} ÒÑ´æÔÚ£¬¼ÓÈë´íÎó");
+                    //å·²å­˜åœ¨
+                    Debug.LogWarning($"{dm.userName} å·²å­˜åœ¨ï¼ŒåŠ å…¥é”™è¯¯");
                 }
                 break;
             case Config.Join_Red:
@@ -193,8 +193,8 @@ public class GameManager : MonoBehaviour
                 }
                 else
                 {
-                    //ÒÑ´æÔÚ
-                    Debug.LogWarning($"{dm.userName} ÒÑ´æÔÚ£¬¼ÓÈë´íÎó");
+                    //å·²å­˜åœ¨
+                    Debug.LogWarning($"{dm.userName} å·²å­˜åœ¨ï¼ŒåŠ å…¥é”™è¯¯");
                 }
                 break;
             default:
@@ -203,19 +203,19 @@ public class GameManager : MonoBehaviour
 
     }
 
-    //ËÍÀñÎï
+    //é€ç¤¼ç‰©
     void OnGiftEvt(SendGift sendGift)
     {
 
     }
 
-    //ÊÕµ½´óº½º£
+    //æ”¶åˆ°å¤§èˆªæµ·
     void OnGuard(Guard guard)
     {
 
     }
 
-    //ÊÕµ½SC
+    //æ”¶åˆ°SC
     void OnSuperChat(SuperChat sc)
     {
 
@@ -239,14 +239,14 @@ public class GameManager : MonoBehaviour
 
         isStartThrowDice = true;
 
-        Debug.Log("Á´½Ó³É¹¦£¬ÓÎÏ·¿ªÊ¼");
+        Debug.Log("é“¾æ¥æˆåŠŸï¼Œæ¸¸æˆå¼€å§‹");
     }
 
     void OnLinkFailedEvt()
     {
         PlayPanel.gameObject.SetActive(false);
         LoginPanel.gameObject.SetActive(true);
-        Debug.LogWarning("Á´½ÓÊ§°Ü");
+        Debug.LogWarning("é“¾æ¥å¤±è´¥");
     }
 
     void GameEnd()
@@ -256,9 +256,9 @@ public class GameManager : MonoBehaviour
 
     #region EventSys Callback
     /// <summary>
-    /// ÖÀ÷»×Ó½áÊøÊÂ¼ş
+    /// æ·éª°å­ç»“æŸäº‹ä»¶
     /// </summary>
-    /// <param name="obj">¡¾0¡¿ÕóÓª£¬¡¾1¡¿userUID£¬¡¾2¡¿÷»×ÓµãÊı</param>
+    /// <param name="obj">ã€0ã€‘é˜µè¥ï¼Œã€1ã€‘userUIDï¼Œã€2ã€‘éª°å­ç‚¹æ•°</param>
     void OnThrowDice_OKEvt(object obj)
     {
         CampEnum camp = (CampEnum)((object[])obj)[0];
@@ -266,9 +266,9 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÓĞÍæ¼Òµ½´ïÖÕµã
+    /// æœ‰ç©å®¶åˆ°è¾¾ç»ˆç‚¹
     /// </summary>
-    /// <param name="obj">[0]=>Íæ¼ÒÕóÓª£¬[1]=>Íæ¼ÒUID</param>
+    /// <param name="obj">[0]=>ç©å®¶é˜µè¥ï¼Œ[1]=>ç©å®¶UID</param>
     void OnWinnerEvt(object obj)
     {
         object[] result = (object[])obj;
@@ -279,7 +279,7 @@ public class GameManager : MonoBehaviour
         PlayerUI playerUI = null;
         PlayerThrowDice playerTD = null;
 
-        //Çå³ıplayerĞÅÏ¢
+        //æ¸…é™¤playerä¿¡æ¯
         if (playerDic.ContainsKey((int)camp))
         {
             if (playerDic[(int)camp].TryGetValue(userUID, out player))
@@ -287,7 +287,7 @@ public class GameManager : MonoBehaviour
                 playerDic[(int)camp].Remove(userUID);
             }
         }
-        //Çå³ıplayerUIĞÅÏ¢
+        //æ¸…é™¤playerUIä¿¡æ¯
         if (playerUIDic.ContainsKey((int)camp))
         {
             if (playerUIDic[(int)camp].TryGetValue(userUID, out playerUI))
@@ -295,7 +295,7 @@ public class GameManager : MonoBehaviour
                 playerUIDic[(int)camp].Remove(userUID);
             }
         }
-        //Çå³ıPlayerThrowDice
+        //æ¸…é™¤PlayerThrowDice
         if (playerThrowDiceDic.ContainsKey((int)camp))
         {
             if (playerThrowDiceDic[(int)camp].TryGetValue(userUID, out playerTD))
@@ -309,17 +309,17 @@ public class GameManager : MonoBehaviour
         if (playerTD != null) Destroy(playerTD.gameObject);
         if (playerUI != null)
         {
-            //¼ÆËãÍ¨¹ØÓÃÊ±
+            //è®¡ç®—é€šå…³ç”¨æ—¶
             float endTime = Time.realtimeSinceStartup;
             float useTime = endTime - playerUI.StartTime;
 
-            //¼ÆËãË¢ĞÂÅÅĞĞĞÅÏ¢
+            //è®¡ç®—åˆ·æ–°æ’è¡Œä¿¡æ¯
             CalcTimeRank(camp, playerUI.UserName, playerUI.UserUID, useTime, playerUI.UserFace);
 
             Destroy(playerUI.gameObject);
         }
 
-        //Èç¹û¸ÃÕóÓªÈËÊı=0£¬Ëæ»úÉú³ÉÈË»ú¼ÓÈë
+        //å¦‚æœè¯¥é˜µè¥äººæ•°=0ï¼Œéšæœºç”ŸæˆäººæœºåŠ å…¥
         if (playerDic[(int)camp].Count == 0)
         {
             int random = Random.Range(111, 1000);
@@ -328,7 +328,7 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-    //¼ÆËãÅÅĞĞĞÅÏ¢
+    //è®¡ç®—æ’è¡Œä¿¡æ¯
     void CalcTimeRank(CampEnum camp, string userName, long userUID, float useTime, Sprite userFace)
     {
         PlayerTimeRankInfo playerTRI = null;
@@ -339,7 +339,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            //playerTRI ²»Îª¿Õ =¡· ÀúÊ·ÔÚ°ñ
+            //playerTRI ä¸ä¸ºç©º =ã€‹ å†å²åœ¨æ¦œ
             playerTimeRankList.Find(p =>
             {
                 if (p.userUID == userUID)
@@ -352,11 +352,11 @@ public class GameManager : MonoBehaviour
 
             if (playerTRI != null)
             {
-                playerTRI.UpdateUseTime(useTime);//Ë¢ĞÂÔÚ°ñ
+                playerTRI.UpdateUseTime(useTime);//åˆ·æ–°åœ¨æ¦œ
             }
             else
             {
-                //ÉÏ°ñ
+                //ä¸Šæ¦œ
                 playerTRI = LoadPlayerTimeRankInfo(camp, userName, userUID, useTime, userFace);
                 playerTimeRankList.Add(playerTRI);
                 playerTimeRankList.Sort((p1, p2) =>
@@ -365,7 +365,7 @@ public class GameManager : MonoBehaviour
                 });
             }
 
-            //Çå³ı4Ãû¿ªÍâ
+            //æ¸…é™¤4åå¼€å¤–
             PlayerTimeRankInfo tmp = null;
             for (int i = 4; i < playerTimeRankList.Count; i++)
             {
@@ -383,7 +383,7 @@ public class GameManager : MonoBehaviour
     }
 
     #region Load Prefab
-    //¼ÓÔØPlayer
+    //åŠ è½½Player
     IEnumerator DoLoadPlayer(CampEnum camp, long userUID, string userName, string userFace)
     {
 
@@ -391,7 +391,7 @@ public class GameManager : MonoBehaviour
         Sprite loadFace = null;
         using (UnityWebRequest webReq = new UnityWebRequest())
         {
-            //¼ÓÔØÍ·Ïñ
+            //åŠ è½½å¤´åƒ
             webReq.url = userFace;
             webReq.method = UnityWebRequest.kHttpVerbGET;
             webReq.downloadHandler = new DownloadHandlerTexture();
@@ -412,12 +412,12 @@ public class GameManager : MonoBehaviour
         LoadPlayer(camp, userUID, userName, loadFace);
     }
 
-    //ÊµÀı»¯Player prefab
+    //å®ä¾‹åŒ–Player prefab
     void LoadPlayer(CampEnum camp, long userUID, string userName, Sprite userFace)
     {
         if (playerDic[(int)camp].Count >= Config.MaxPlayer)
         {
-            Debug.LogWarning($"[{userName}]¼ÓÈëÊ§°Ü£¬ [{camp}] ÕóÓªÈËÊıÒÑÂú¡£");
+            Debug.LogWarning($"[{userName}]åŠ å…¥å¤±è´¥ï¼Œ [{camp}] é˜µè¥äººæ•°å·²æ»¡ã€‚");
             return;
         }
 
@@ -443,17 +443,17 @@ public class GameManager : MonoBehaviour
                 Destroy(obj);
                 Destroy(playerUIObj);
                 Destroy(playerTDObj);
-                Debug.LogWarning($"Íæ¼Ò[{userName}] ¼ÓÈëÕóÓªÊ§°Ü£¬ÇëÉÔºóÖØÊÔ");
+                Debug.LogWarning($"ç©å®¶[{userName}] åŠ å…¥é˜µè¥å¤±è´¥ï¼Œè¯·ç¨åé‡è¯•");
             }
 
         }
         else
         {
-            Debug.LogWarning($"Íæ¼Ò[{userName}]£¬ÒÑ´æÔÚ");
+            Debug.LogWarning($"ç©å®¶[{userName}]ï¼Œå·²å­˜åœ¨");
         }
     }
 
-    //ÊµÀı»¯Player UI Info Prefab
+    //å®ä¾‹åŒ–Player UI Info Prefab
     PlayerUI LoadPlayerUI(CampEnum camp, string userName, long userUID, Sprite userface, out GameObject obj)
     {
         PlayerUI playerUI = null;
@@ -469,7 +469,7 @@ public class GameManager : MonoBehaviour
 
     }
 
-    //ÊµÀı»¯PlayerThrowDice Prefab
+    //å®ä¾‹åŒ–PlayerThrowDice Prefab
     PlayerThrowDice LoadPlayerThrowDice(CampEnum camp, string userName, long userUID, Sprite userFace, out GameObject obj)
     {
         PlayerThrowDice playerThrowDice = null;
@@ -483,7 +483,7 @@ public class GameManager : MonoBehaviour
         return playerThrowDice;
     }
 
-    //ÊµÀı»¯PlayerTimeRankInfo
+    //å®ä¾‹åŒ–PlayerTimeRankInfo
     PlayerTimeRankInfo LoadPlayerTimeRankInfo(CampEnum camp, string userName, long userUID, float useTime, Sprite userFace)
     {
         GameObject obj = GameObject.Instantiate(PlayerTimeRankInfo_Prefab);
@@ -496,7 +496,7 @@ public class GameManager : MonoBehaviour
     }
     #endregion
 
-    //¼ì²éÖ¸¶¨UIDÊÇ·ñ´æÔÚ
+    //æ£€æŸ¥æŒ‡å®šUIDæ˜¯å¦å­˜åœ¨
     bool IsExistPlayer(long userUID)
     {
         for (int i = 0; i < playerDic.Count; i++)
@@ -510,7 +510,7 @@ public class GameManager : MonoBehaviour
     }
 
 
-    //Ö´ĞĞÖÀ÷»×ÓÊÂ¼ş
+    //æ‰§è¡Œæ·éª°å­äº‹ä»¶
     bool isStartThrowDice = false;
     float throwTime = Config.ThrowDiceWaitTime;
     int campThrow = (int)CampEnum.Red;
@@ -528,9 +528,9 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Application.targetFrameRate = Config.FrameRate;//Ö¡ÂÊ
-        Screen.fullScreen = Config.isFullScreen;//ÊÇ·ñÈ«ÆÁ
-        //ÆÁÄ»·Ö±æÂÊ
+        Application.targetFrameRate = Config.FrameRate;//å¸§ç‡
+        Screen.fullScreen = Config.isFullScreen;//æ˜¯å¦å…¨å±
+        //å±å¹•åˆ†è¾¨ç‡
         Screen.SetResolution(Config.ScreenResolution_width, Config.ScreenResolution_height, Config.isFullScreen);
 
         Init();
@@ -573,7 +573,7 @@ public class GameManager : MonoBehaviour
 
         }
 
-        #region  For Test µ¯Ä»ÃüÁî
+        #region  For Test å¼¹å¹•å‘½ä»¤
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             Debug.Log("Key Down [1]");

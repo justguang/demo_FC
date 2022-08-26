@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// ÏÔÊ¾ÔÚUIÉÏµÄÍæ¼ÒĞÅÏ¢
+/// æ˜¾ç¤ºåœ¨UIä¸Šçš„ç©å®¶ä¿¡æ¯
 /// </summary>
 public class PlayerUI : MonoBehaviour
 {
@@ -17,8 +17,8 @@ public class PlayerUI : MonoBehaviour
     public Sprite UserFace { get; private set; }
     public string UserName { get; private set; }
     public long UserUID { get; private set; }
-    public CampEnum m_Camp { get; private set; }//ÕóÓª
-    public float StartTime { get; private set; }//¿ªÊ¼Ê±¼ä
+    public CampEnum m_Camp { get; private set; }//é˜µè¥
+    public float StartTime { get; private set; }//å¼€å§‹æ—¶é—´
 
     public void Init(CampEnum camp, string userName, long userUID, Sprite userFace)
     {

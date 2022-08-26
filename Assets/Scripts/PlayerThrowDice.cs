@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Íæ¼ÒÖÀ÷»×ÓÃæ°å
+/// ç©å®¶æ·éª°å­é¢æ¿
 /// </summary>
 public class PlayerThrowDice : MonoBehaviour
 {
@@ -19,7 +19,7 @@ public class PlayerThrowDice : MonoBehaviour
     public CampEnum m_Camp { get; private set; }
     public long UserUID { get; private set; }
 
-    private bool isWinner = false;//µ½´ïÖÕµã isWinner = true
+    private bool isWinner = false;//åˆ°è¾¾ç»ˆç‚¹ isWinner = true
 
     public void Init(CampEnum camp, string userName, long userUID, Sprite userFace)
     {
@@ -43,23 +43,23 @@ public class PlayerThrowDice : MonoBehaviour
 
 
     /// <summary>
-    /// ÖÀ÷»×ÓÊÂ¼ş´¥·¢
+    /// æ·éª°å­äº‹ä»¶è§¦å‘
     /// </summary>
-    /// <param name="obj">ÕóÓª</param>
+    /// <param name="obj">é˜µè¥</param>
     void OnThrowDiceEvt(object obj)
     {
         int tmpCamp = (int)obj;
         if (tmpCamp == (int)m_Camp && isWinner == false)
         {
-            //ÂÖµ½ÎÒ·½ÖÀ÷»×Ó
+            //è½®åˆ°æˆ‘æ–¹æ·éª°å­
             StartCoroutine(DoThrowDice());
         }
     }
 
     /// <summary>
-    /// µ½´ïÖÕµãÊÂ¼ş
+    /// åˆ°è¾¾ç»ˆç‚¹äº‹ä»¶
     /// </summary>
-    /// <param name="obj">¡¾0¡¿µ½´ïÖÕµãÕßËùÊôÕóÓª£¬¡¾1¡¿µ½´ïÖÕµãÕßUID</param>
+    /// <param name="obj">ã€0ã€‘åˆ°è¾¾ç»ˆç‚¹è€…æ‰€å±é˜µè¥ï¼Œã€1ã€‘åˆ°è¾¾ç»ˆç‚¹è€…UID</param>
     void OnWinnerEvt(object obj)
     {
         object[] result = (object[])obj;
@@ -71,7 +71,7 @@ public class PlayerThrowDice : MonoBehaviour
 
 
     /// <summary>
-    /// ÖÀ÷»×Ó
+    /// æ·éª°å­
     /// </summary>
     IEnumerator DoThrowDice()
     {
